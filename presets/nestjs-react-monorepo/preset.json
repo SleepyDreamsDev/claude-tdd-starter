@@ -1,0 +1,22 @@
+{
+  "name": "nestjs-react-monorepo",
+  "description": "NestJS 11 API + React 18 + Vite, npm workspaces monorepo",
+  "variables": {
+    "TEST_CMD_PRIMARY": "cd apps/web && npx vitest run",
+    "TEST_CMD_SECONDARY": "cd apps/api && npx jest",
+    "TEST_CI_CMD": "npm run test:run --workspace=apps/web && npm run test --workspace=apps/api",
+    "TYPECHECK_CMD": "npx tsc --build --noEmit",
+    "COVERAGE_THRESHOLD": "70",
+    "SCOPES": "api, web, worker, shared, ui, prisma, infra, ci",
+    "LINT_STAGED": {
+      "apps/web/**/*.{ts,tsx}": ["prettier --write"],
+      "apps/api/**/*.{ts,tsx}": ["prettier --write"],
+      "packages/**/*.{ts,tsx}": ["prettier --write"],
+      "*.{json,css,md,html,yaml,yml}": ["prettier --write"]
+    },
+    "PACKAGE_SCRIPTS": {
+      "test:ci": "npm run test:run --workspace=apps/web && npm run test --workspace=apps/api",
+      "prepare": "husky"
+    }
+  }
+}

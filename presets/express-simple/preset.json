@@ -1,0 +1,24 @@
+{
+  "name": "express-simple",
+  "description": "Express + Vitest, single package API",
+  "variables": {
+    "TEST_CMD_PRIMARY": "npx vitest run",
+    "TEST_CMD_SECONDARY": "",
+    "TEST_CI_CMD": "npx vitest run",
+    "TYPECHECK_CMD": "npx tsc --noEmit",
+    "COVERAGE_THRESHOLD": "70",
+    "SCOPES": "api, routes, middleware, models, lib",
+    "LINT_STAGED": {
+      "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+      "*.{json,css,md,yaml,yml}": ["prettier --write"]
+    },
+    "PACKAGE_SCRIPTS": {
+      "test": "vitest run",
+      "test:watch": "vitest",
+      "test:coverage": "vitest run --coverage",
+      "test:ci": "vitest run",
+      "typecheck": "tsc --noEmit",
+      "prepare": "husky"
+    }
+  }
+}

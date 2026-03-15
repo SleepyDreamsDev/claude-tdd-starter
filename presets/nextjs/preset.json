@@ -1,0 +1,24 @@
+{
+  "name": "nextjs",
+  "description": "Next.js 15 + App Router + Vitest + pnpm",
+  "variables": {
+    "TEST_CMD_PRIMARY": "pnpm vitest run",
+    "TEST_CMD_SECONDARY": "",
+    "TEST_CI_CMD": "pnpm vitest run",
+    "TYPECHECK_CMD": "pnpm tsc --noEmit",
+    "COVERAGE_THRESHOLD": "70",
+    "SCOPES": "app, api, components, lib, auth, db",
+    "LINT_STAGED": {
+      "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+      "*.{json,css,md,html,yaml,yml}": ["prettier --write"]
+    },
+    "PACKAGE_SCRIPTS": {
+      "test": "vitest run",
+      "test:watch": "vitest",
+      "test:coverage": "vitest run --coverage",
+      "test:ci": "vitest run",
+      "typecheck": "tsc --noEmit",
+      "prepare": "husky"
+    }
+  }
+}

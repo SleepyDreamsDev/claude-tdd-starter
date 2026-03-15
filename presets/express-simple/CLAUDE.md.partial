@@ -1,0 +1,25 @@
+## Tech Stack (express-simple)
+
+- Express + TypeScript strict
+- Vitest for testing
+- npm for package management
+
+## Architecture
+
+```
+src/
+  routes/       # Express route handlers
+  middleware/   # Auth, validation, error handling
+  models/       # Data models / DB access
+  lib/          # Shared utilities
+  __tests__/    # Test files
+  app.ts        # Express app setup
+  server.ts     # Server entry point
+```
+
+## Additional Conventions
+
+### Testing
+- Single Vitest runner
+- Use `supertest` for HTTP integration tests
+- Tests in `__tests__/` subdirectories or co-located as `*.test.ts`

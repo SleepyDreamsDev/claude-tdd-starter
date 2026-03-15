@@ -1,0 +1,81 @@
+# {{PROJECT_NAME}} — Claude Code Reference
+
+## Tech Stack
+
+{{TECH_STACK}}
+
+## Quick Start
+
+```bash
+{{QUICK_START}}
+```
+
+## Commands
+
+{{COMMANDS}}
+
+## Architecture
+
+{{ARCHITECTURE}}
+
+## Conventions
+
+### Commits
+
+Follow Conventional Commits (enforced by commitlint):
+
+- `feat(scope): add new feature`
+- `fix(scope): fix a bug`
+- `chore(scope): tooling, deps, config`
+- `docs: documentation changes`
+- `test(scope): add or fix tests`
+- `refactor(scope): restructure code`
+
+Scopes: {{SCOPES}}
+
+### Branching
+
+- Feature: `feature/short-description`
+- Fix: `fix/issue-description`
+- Squash merge to main, delete after merge
+
+### Code Style
+
+- TypeScript strict mode
+- ESLint + Prettier (auto-formatted by hooks)
+- Import order: external -> internal -> relative
+
+{{ADDITIONAL_CONVENTIONS}}
+
+## TDD Workflow Rules
+
+- NEVER write implementation and tests in the same step.
+- RED: tests only. GREEN: implementation only. REFACTOR: improve only.
+- If a test fails during REFACTOR, revert immediately, then try differently.
+- After GREEN, always refactor before shipping. Never ship first-pass code.
+- Never modify files in `*/generated/*` or `*/__generated__/*`
+- Testing Trophy priority: integration tests > unit tests > E2E tests
+- Coverage target: {{COVERAGE_THRESHOLD}}%+ on business logic
+
+### Test Runner Reference
+
+{{TEST_RUNNER_TABLE}}
+
+### Test Utilities
+
+{{TEST_UTILITIES}}
+
+## Available Skills
+
+- `/feature <description>` — Full TDD cycle: tests -> implement -> refactor -> ship.
+  One mandatory pause after test list. Everything else is autonomous.
+  Includes quick security check before commit (Phase 5, Step 1.5).
+
+- `/security [files or git ref]` — Deep security review with threat modeling.
+  OWASP Top 10 + platform-specific checks.
+  Pauses on critical/high findings for approval before fixing.
+  Use before PRs or after completing features. Defaults to reviewing unstaged changes.
+
+## References
+
+{{REFERENCES}}

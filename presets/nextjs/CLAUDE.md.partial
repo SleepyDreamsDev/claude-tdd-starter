@@ -1,0 +1,26 @@
+## Tech Stack (nextjs)
+
+- Next.js 15 (App Router) + TypeScript strict
+- Tailwind CSS + shadcn/ui
+- Vitest + React Testing Library for tests
+- Playwright for E2E (optional)
+- pnpm for package management
+
+## Architecture
+
+```
+src/
+  app/           # Next.js App Router pages and layouts
+  server/        # tRPC routers, database queries, business logic
+  components/    # React components (shadcn/ui based)
+  lib/           # Shared utilities, schema, auth config
+  __tests__/     # Test files
+```
+
+## Additional Conventions
+
+### Testing
+- Single Vitest runner for all tests
+- Globals enabled (no need to import describe/it/expect)
+- `pnpm vitest run <file>` for single file
+- Tests in `__tests__/` subdirectories or co-located as `*.test.ts(x)`

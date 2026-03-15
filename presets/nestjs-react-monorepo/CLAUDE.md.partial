@@ -1,0 +1,53 @@
+## Tech Stack (nestjs-react-monorepo)
+
+**Backend:**
+- NestJS 11 + TypeScript (strict mode)
+- Prisma ORM with PostgreSQL
+- OpenAPI/Swagger for API documentation
+- Class-validator + class-transformer for validation
+
+**Frontend:**
+- React 18 + TypeScript + Vite
+- TanStack Query for server state
+- Zustand for client state
+- Tailwind CSS + shadcn/ui components
+
+**Infrastructure:**
+- Docker Compose (PostgreSQL + Redis)
+- npm workspaces for monorepo
+
+## Architecture
+
+```
+/
+├── apps/
+│   ├── api/          # NestJS REST API
+│   ├── web/          # React frontend (Vite)
+│   └── worker/       # Background jobs (optional)
+├── packages/
+│   ├── shared/       # Shared types, validation, utils
+│   └── ui/           # UI components
+├── prisma/           # Database schema & migrations
+└── docker-compose.yml
+```
+
+## Additional Conventions
+
+### API Development
+1. Define DTO with `@ApiProperty` + validation decorators
+2. Add controller method with `@ApiOperation`, `@ApiResponse`
+3. Restart API (auto-generates openapi.json)
+4. Run `npm run codegen` to generate frontend client
+5. Use generated hooks in React components
+
+### Testing
+- **apps/web**: Vitest + React Testing Library + jsdom
+  - Globals enabled (no need to import describe/it/expect)
+  - Test utilities at `apps/web/src/test/utils.tsx`
+- **apps/api**: Jest + @nestjs/testing + supertest
+  - E2E tests in `apps/api/test/` with `*.e2e-spec.ts`
+
+### Type Safety
+- Backend to Frontend: OpenAPI spec ensures types match
+- Shared code: Use `packages/shared` for business logic types
+- Never `any`: Use `unknown` and type guards instead

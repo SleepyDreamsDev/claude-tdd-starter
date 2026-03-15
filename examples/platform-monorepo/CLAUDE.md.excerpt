@@ -1,0 +1,50 @@
+# Platform Monorepo – Claude Code Reference
+
+## Tech Stack
+
+**Backend:**
+
+- NestJS 11 + TypeScript (strict mode)
+- Prisma 6 ORM with PostgreSQL 16
+- OpenAPI/Swagger for API documentation
+- Class-validator + class-transformer for validation
+- BullMQ for background jobs (Redis)
+
+**Frontend:**
+
+- React 18 + TypeScript + Vite
+- TanStack Query for server state
+- Zustand for client state
+- Dexie (IndexedDB) for local-first storage
+- Tailwind CSS + shadcn/ui components
+- Orval for auto-generated API client
+
+**Infrastructure:**
+
+- Docker Compose (PostgreSQL + Redis)
+- npm workspaces for monorepo
+- Multi-stage Dockerfiles for production
+
+## Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start infrastructure (PostgreSQL + Redis)
+npm run docker:up
+
+# Start all apps in development
+npm run dev
+
+# Generate API client from OpenAPI spec
+npm run codegen
+```
+
+## Commands
+
+### Monorepo Root
+
+- `npm run dev` - Start all apps (web, api, worker) concurrently
+- `npm run build` - Build all workspaces
+- `npm run test` - Run tests in all workspaces
