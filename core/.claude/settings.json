@@ -1,4 +1,25 @@
 {
+  "permissions": {
+    "deny": [
+      "Bash(wget *)",
+      "Bash(curl -o *)",
+      "Bash(curl --output *)",
+      "Bash(ssh *)",
+      "Bash(scp *)",
+      "Bash(rsync *)"
+    ],
+    "allow": [
+      "Read",
+      "Edit",
+      "MultiEdit",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash(*)",
+      "WebFetch(github.com/*)",
+      "WebFetch(www.npmjs.com/*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

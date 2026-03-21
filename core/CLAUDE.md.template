@@ -18,6 +18,8 @@
 
 {{ARCHITECTURE}}
 
+{{ADDITIONAL_CONVENTIONS}}
+
 ## Conventions
 
 ### Commits
@@ -45,8 +47,6 @@ Scopes: {{SCOPES}}
 - ESLint + Prettier (auto-formatted by hooks)
 - Import order: external -> internal -> relative
 
-{{ADDITIONAL_CONVENTIONS}}
-
 ## TDD Workflow Rules
 
 - NEVER write implementation and tests in the same step.
@@ -65,11 +65,22 @@ Scopes: {{SCOPES}}
 
 {{TEST_UTILITIES}}
 
+### Gherkin Specs
+
+- Feature specs live in `specs/*.feature`
+- Written BEFORE tests as human-readable acceptance criteria
+- Not executable — documentation that maps to test `describe`/`it` blocks
+- One `.feature` file per feature/PR
+- Created automatically by `/feature` skill in PHASE 1.5 (SPECIFY)
+
+{{AGENT_ROSTER}}
+
 ## Available Skills
 
-- `/feature <description>` — Full TDD cycle: tests -> implement -> refactor -> ship.
-  One mandatory pause after test list. Everything else is autonomous.
-  Includes quick security check before commit (Phase 5, Step 1.5).
+- `/feature [--careful] <description>` — Orchestrated TDD cycle: Gherkin spec → tests → implement → refactor → ship.
+  Writes Gherkin acceptance criteria first, then derives tests from scenarios.
+  Default: FAST_MODE — combined RED+GREEN, auto-approve Gherkin, parallel validation.
+  `--careful`: forces PAUSE for Gherkin approval and separate RED/GREEN steps.
 
 - `/security [files or git ref]` — Deep security review with threat modeling.
   OWASP Top 10 + platform-specific checks.

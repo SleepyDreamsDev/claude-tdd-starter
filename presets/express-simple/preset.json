@@ -6,8 +6,12 @@
     "TEST_CMD_SECONDARY": "",
     "TEST_CI_CMD": "npx vitest run",
     "TYPECHECK_CMD": "npx tsc --noEmit",
+    "FORMAT_CMD": "npx prettier --write",
+    "FORMAT_EXTENSIONS": "*.ts|*.tsx|*.js|*.jsx|*.json|*.css|*.md|*.yaml|*.yml",
     "COVERAGE_THRESHOLD": "70",
     "SCOPES": "api, routes, middleware, models, lib",
+    "HAS_AGENTS": false,
+    "PACKAGE_MANAGER": "npm",
     "LINT_STAGED": {
       "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
       "*.{json,css,md,yaml,yml}": ["prettier --write"]

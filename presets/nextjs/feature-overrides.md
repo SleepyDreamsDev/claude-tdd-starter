@@ -32,6 +32,20 @@ All code lives under `src/`.
 
 **CRITICAL:** Never run `pnpm vitest` without `run` flag — it starts watch mode and hangs.
 
+### Validation Commands (PHASE 5)
+
+```bash
+# Type check
+pnpm tsc --noEmit
+
+# Run all tests
+pnpm vitest run
+```
+
+### Agent Dispatch (PHASE 2+3)
+
+No specialist agents — execute RED+GREEN inline.
+
 ### Platform Security Checks
 
 - **Auth**: Server Actions and API routes check session before mutations

@@ -1,0 +1,68 @@
+## Tech Stack (react-capacitor)
+
+- React 18 + TypeScript + Vite
+- Tailwind CSS + shadcn/ui components
+- React Router v6
+- TanStack Query for async state
+- Zustand for client state
+- Dexie (IndexedDB) for local-first storage
+- Capacitor for native Android/iOS packaging
+- Google Drive API for cloud sync (encrypted)
+- Web Crypto API (AES-GCM 256-bit, PBKDF2) for data encryption
+- Vitest + React Testing Library for tests
+- Bun as package manager
+
+## Architecture
+
+```
+src/
+├── pages/           # Route components (screens)
+├── components/      # Reusable UI components (shadcn/ui)
+├── hooks/           # Custom React hooks
+├── store/           # Zustand state stores
+├── lib/
+│   ├── db/          # Dexie database schema, migrations, queries
+│   ├── sync/        # Google Drive sync logic
+│   ├── crypto/      # Web Crypto encryption/decryption utils
+│   └── utils/       # General utilities, formatters
+├── api/             # External API client (if any)
+├── test/            # Test setup, utilities, mocks
+│   ├── setup.ts     # jest-dom matchers, fake-indexeddb
+│   └── utils.tsx    # renderWithRouter, mock factories
+├── App.tsx          # Root component with routing
+└── main.tsx         # Entry point
+```
+
+## Agent Roster
+
+| Agent | Model | Scope | When used |
+|---|---|---|---|
+| **app-dev** | Sonnet | `src/` — all app code | RED/GREEN phases |
+| **reviewer** | Opus | Full repo (read-only + tests) | PHASE 5 validation |
+
+## Additional Conventions
+
+### Capacitor
+- Native plugins: `@capacitor/filesystem`, `@capacitor/share`, `@capacitor/app`
+- Platform detection: `import { Capacitor } from '@capacitor/core'`
+- Never use browser-only APIs without checking `Capacitor.isNativePlatform()`
+- Android builds: `npx cap sync android && npx cap open android`
+
+### Local-First with Dexie
+- Dexie is primary storage (offline-first)
+- All data available offline; sync is optional enhancement
+- Schema versioning via `db.version(N).stores({...})`
+- Use `useLiveQuery` for reactive Dexie queries in components
+
+### Encryption
+- Web Crypto API for all encryption (AES-GCM 256-bit)
+- PBKDF2 for key derivation from user passphrase
+- Keys stored in IndexedDB (not localStorage)
+- Encrypted before sync to Google Drive
+
+### Testing
+- Vitest + React Testing Library + user-event
+- Globals enabled (no need to import describe/it/expect/vi)
+- `fake-indexeddb` for Dexie tests (imported in test setup)
+- Mock Capacitor plugins in tests: `vi.mock('@capacitor/...')`
+- Test utilities at `src/test/utils.tsx`
