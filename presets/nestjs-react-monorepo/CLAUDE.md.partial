@@ -13,7 +13,7 @@
 - Tailwind CSS + shadcn/ui components
 
 **Infrastructure:**
-- Docker Compose (PostgreSQL + Redis)
+- Docker Compose (PostgreSQL)
 - npm workspaces for monorepo
 
 ## Architecture
@@ -30,6 +30,17 @@
 ├── prisma/           # Database schema & migrations
 └── docker-compose.yml
 ```
+
+## Agent Roster
+
+| Agent | Model | Scope | When used |
+|---|---|---|---|
+| **backend-dev** | Sonnet | `apps/api/`, `packages/shared/`, `apps/worker/`, `prisma/` | RED/GREEN phases |
+| **frontend-dev** | Sonnet | `apps/web/`, `packages/ui/` | RED/GREEN phases |
+| **reviewer** | Opus | Full repo (read-only + tests) | PHASE 5 validation |
+
+**Orchestration:** Main session (Opus) handles planning, specs, refactoring, and shipping.
+Implementation agents (Sonnet) handle fast RED→GREEN loops. Reviewer (Opus) does thorough validation.
 
 ## Additional Conventions
 

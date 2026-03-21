@@ -32,6 +32,20 @@ All code lives under `src/`.
 
 **CRITICAL:** Never run `npx vitest` without `run` flag — it starts watch mode and hangs.
 
+### Validation Commands (PHASE 5)
+
+```bash
+# Type check
+npx tsc --noEmit
+
+# Run all tests
+npx vitest run
+```
+
+### Agent Dispatch (PHASE 2+3)
+
+No specialist agents — execute RED+GREEN inline.
+
 ### Platform Security Checks
 
 - **Auth**: All routes behind auth middleware? Token validation correct?

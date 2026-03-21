@@ -1,15 +1,15 @@
 ---
 name: feature
 description: >
-  End-to-end TDD feature delivery. Writes tests, implements, refactors,
-  commits. Use when the user says "implement", "build", "add feature",
-  or runs /feature.
+  End-to-end TDD feature delivery. Writes Gherkin specs, tests, implements,
+  refactors, commits. Default FAST_MODE uses combined RED+GREEN dispatch and
+  parallel validation. Kaizen retrospective after each delivery. Use when the
+  user says "implement", "build", "add feature", or runs /feature.
 command: /feature
-argument-hint: "<feature description>"
-allowed-tools: Read, Glob, Grep, Write, Edit, MultiEdit, Bash, TodoWrite
+argument-hint: "[--careful] <feature description>"
 ---
 
-# Feature Delivery: Autonomous TDD Cycle
+# Feature Delivery: Orchestrated TDD Cycle
 
 You will deliver a complete feature using strict TDD. Follow every phase
 in order. Do not skip phases. Do not ask for permission between phases
@@ -21,6 +21,38 @@ The feature to build: $ARGUMENTS
 
 ## PHASE 0 — PLAN CONTEXT (silent)
 
+### Step 0: Determine execution mode
+
+The default execution mode is **FAST_MODE = true** (combined RED+GREEN, skip PAUSE).
+Override to `FAST_MODE = false` **only when** `$ARGUMENTS` contains `--careful`.
+
+A plan file with detailed task specs IS the pre-approval — even for security-sensitive
+features. If a plan file exists and covers the feature, FAST_MODE remains true.
+
+When `FAST_MODE = false` (`--careful` explicitly passed):
+
+- PHASE 1.5: PAUSE for user approval of Gherkin spec
+- PHASE 2+3: separate RED and GREEN steps so you can review tests before implementing
+
+When `FAST_MODE = true` (the default):
+
+- PHASE 1.5: auto-approve Gherkin spec (output banner with scenario count)
+- PHASE 2+3: combined RED+GREEN in one pass
+
+If `$ARGUMENTS` contains `--careful`, remove it from arguments before using as
+the feature description.
+
+### Step 0.5: Model guardrail (non-blocking)
+
+Planning and specification phases produce the highest quality output with Opus.
+If the current model is not Opus, output a warning but **do not wait for user input**:
+
+> ── WARNING: Running on \<model>. Opus recommended for planning quality. ──
+
+Continue immediately — this is informational, not a gate.
+
+### Step 1: Load plan context
+
 Check if a plan file exists:
 
 1. Run `ls -t .claude/plans/*.md 2>/dev/null | head -1` to find the most recent plan.
@@ -28,12 +60,18 @@ Check if a plan file exists:
    The plan is the source of truth for scope, file locations, and acceptance criteria.
 3. If no plan file exists, proceed using only $ARGUMENTS as the feature specification.
 
+### Phase status banner
+
+Output (only if plan was loaded):
+
+> ── PHASE 0 PLAN ✓ ── loaded \<plan-filename>
+
 ---
 
 ## PHASE 1 — DISCOVER (silent, no output needed)
 
 1. Read CLAUDE.md for project conventions.
-2. Determine the target workspace(s) from the feature description and/or plan file.
+2. Determine the target workspace(s) from the feature description and/or plan file:
 
 {{WORKSPACE_TABLE}}
 
@@ -46,16 +84,93 @@ Check if a plan file exists:
 4. Identify where the new feature's source and test files should live based on
    existing directory structure.
 
+### Phase status banner
+
+Output:
+
+> ── PHASE 1 DISCOVER ✓ ── \<workspace(s)>, \<test-framework>
+
 ---
 
-## PHASE 2 — RED: Write Failing Tests
+## PHASE 1.5 — SPECIFY (Gherkin acceptance criteria)
+
+Before writing any tests, create a Gherkin spec at `specs/<feature-slug>.feature`.
+
+This is the human-readable acceptance criteria that drives test writing.
+Each `Scenario:` will map to one `it()` block in the test files.
+
+Example:
+
+```gherkin
+Feature: Fuel entry tracking
+  As a vehicle owner
+  I want to log fuel purchases
+  So that I can track consumption and costs
+
+  Scenario: Add fuel entry with valid data
+    Given I have a vehicle "Toyota Camry"
+    When I add a fuel entry with 45L at $1.85/L
+    Then the entry is saved with total cost $83.25
+    And the fuel history shows 1 entry
+
+  Scenario: Reject fuel entry with negative amount
+    Given I have a vehicle
+    When I add a fuel entry with -10L
+    Then I see a validation error
+
+  Scenario: Calculate fuel economy between entries
+    Given I have two fuel entries 500km apart
+    When I view fuel economy
+    Then I see consumption in L/100km
+```
+
+Rules:
+
+- One `.feature` file per `/feature` invocation
+- Not executable — documentation only, no cucumber dependency
+- Scenarios should cover: happy path, validation, edge cases, error conditions
+- Write scenarios for ALL target workspaces in the same file
+
+### Phase status banner
+
+Output:
+
+> ── PHASE 1.5 SPECIFY ✓ ── N scenarios in specs/\<feature>.feature
+
+---
+
+### PAUSE — Review spec
+
+**If `FAST_MODE` is true:** skip this pause. Output:
+
+> ── FAST MODE: auto-approving N scenarios. Proceeding to RED+GREEN. ──
+
+**Otherwise:** output the Gherkin scenarios and ask:
+
+> "Here are the acceptance criteria I'll test and implement.
+> Reply **go** to proceed, or tell me what to add/change."
+
+**Wait for the user to respond before continuing.**
+
+---
+
+## PHASE 2 — RED + GREEN: Write Tests and Implement
 
 ### Testing Trophy priority (most valuable first):
+
 1. **Integration tests** — API endpoints with real request/response, component behavior
 2. **Unit tests** — Pure functions, calculations, validators
 3. **Edge cases** — Boundary values, error conditions, empty states
 
-### Write tests:
+Each `Scenario:` from the Gherkin spec becomes one `it()` block.
+
+{{AGENT_DISPATCH}}
+
+### Inline execution (when no specialist agents are configured)
+
+If no specialist agents are available, execute RED+GREEN directly:
+
+**RED — Write failing tests:**
 
 1. Create test file(s) in the appropriate location using workspace conventions.
 2. Write 5-8 test cases covering:
@@ -66,22 +181,11 @@ Check if a plan file exists:
 3. Each test uses `describe`/`it` blocks, AAA pattern (Arrange, Act, Assert).
 4. Import from where the implementation WILL exist. Do NOT create the
    implementation file yet.
-5. Run the test file to confirm ALL tests fail:
+5. Run the test file to confirm ALL tests fail.
 
 {{TEST_COMMANDS}}
 
-### PAUSE — Show the test list
-
-Output the complete list of `it()` blocks and ask:
-
-> "Here are the behaviors I'll implement. Review the test list.
-> Reply **go** to proceed, or tell me what to add/change."
-
-**Wait for the user to respond before continuing.**
-
----
-
-## PHASE 3 — GREEN: Implement Until All Pass
+**GREEN — Implement until all pass:**
 
 1. Create the implementation file(s).
 2. Write the SIMPLEST code that makes each test pass.
@@ -92,7 +196,13 @@ Output the complete list of `it()` blocks and ask:
    - Run tests again.
 5. **Keep going until ALL tests pass.** Do not stop after the first attempt.
    Do not ask for help unless stuck on the same error 3+ times.
-6. When all green, continue immediately to Phase 4.
+
+### Phase status banners
+
+After RED+GREEN completes, output:
+
+> ── PHASE 2 RED ✓ ── N tests written, all failing
+> ── PHASE 3 GREEN ✓ ── N/N tests passing
 
 ---
 
@@ -108,69 +218,127 @@ Output the complete list of `it()` blocks and ask:
 4. If any test fails after a refactoring change, revert that change and try differently.
 5. When refactoring is complete, continue to Phase 5.
 
+### Phase status banner
+
+Output:
+
+> ── PHASE 4 REFACTOR ✓ ── code improved, all tests green
+
 ---
 
 ## PHASE 5 — SHIP: Commit and Checkpoint
 
-### Step 1: Full validation
+### Step 1: Full validation (parallel)
+
+Run these checks — if multiple are needed, make parallel Bash tool calls:
 
 ```bash
-{{TYPECHECK_CMD}}
-{{TEST_CI_CMD}}
+{{VALIDATION_COMMANDS}}
 ```
 
-If either fails, fix and re-run before proceeding.
+If any fail, fix and re-run only the failing check.
 
 ### Step 1.5: Quick security check
 
 Review the new/modified code for common security issues:
 - **Input validation**: Are all user inputs validated?
-- **Auth/authz**: Do new API endpoints have proper guards?
-- **Injection**: No raw SQL, no innerHTML, no dynamic code execution, no unsanitized template literals
-- **Data exposure**: Response DTOs don't leak sensitive fields (passwords, tokens, internal IDs)
+- **Auth/authz**: Do new endpoints/routes have proper guards?
+- **Injection**: No raw SQL, no innerHTML, no dynamic code execution, no unsanitized templates
+- **Data exposure**: Responses don't leak sensitive fields (passwords, tokens, internal IDs)
 - **Error messages**: Errors don't expose stack traces or internal details to clients
 
 If any issue found, fix it and re-run tests before proceeding.
 
-### Step 2: Commit
+### Step 2: Prepare commit
 
 1. Create a feature branch if on main:
    ```bash
    git checkout -b feature/<short-slug>
    ```
-2. Stage changed files (be specific, avoid `git add -A`):
+2. Stage changed files including `specs/<feature>.feature`:
    ```bash
-   git add <list of changed files>
+   git add <list of changed files> specs/<feature>.feature
    ```
-3. Commit with conventional commit message:
+3. Draft the commit message (conventional commit format):
    ```
    feat(<scope>): <description>
    ```
 
-4. Push:
-   ```bash
-   git push -u origin HEAD
-   ```
+### Step 3: Commit and push
 
-### Step 3: Checkpoint summary
+```bash
+git commit -m "<message>"
+git push -u origin HEAD
+```
+
+### Step 4: Update backlog (if backlog exists)
+
+If `.claude/plans/backlog.md` exists:
+
+- Mark the matching item as `[x]` (done) and move it to the **Done** section
+- Add a brief note if the implementation differed from what was planned
+- If new follow-up work was discovered, add it as a new `[ ]` item
+- Commit the backlog update (separate commit)
+
+### Step 5: Checkpoint summary
+
+Output using this bordered format:
+
+```
+══════════════════════════════════════════════════════
+  FEATURE COMPLETE: <short description>
+══════════════════════════════════════════════════════
+
+  Gherkin spec: specs/<feature>.feature — N scenarios
+  Tests: N passing
+  Branch: feature/<slug>
+  Commit: <short hash> <message>
+
+  Files created/modified:
+    - <file list>
+
+  Assumptions (unvalidated):
+    - <list or "none">
+
+  Next session:
+    - <what to work on next>
+══════════════════════════════════════════════════════
+```
+
+### Step 6: Kaizen retrospective
+
+After every feature delivery, briefly evaluate the session and suggest improvements.
+
+Classify each improvement as:
+
+| Type | Action |
+|---|---|
+| **Fix** — broken/stale code discovered during feature | Auto-implement + commit |
+| **Quality** — clear best practice missing (e.g., `as any` cast) | Auto-implement + commit |
+| **Workflow** — process change suggestion | Output only, do NOT auto-implement (debatable) |
+| **Architecture** — structural change to codebase | Output only, do NOT auto-implement (debatable) |
 
 Output:
 
 ```
-## Checkpoint
+── KAIZEN ──────────────────────────────────────
+  What went well:
+    - <1-2 things that worked efficiently>
 
-### What was built
-- [1-2 sentence summary]
+  What could improve:
+    - <1-2 concrete, actionable suggestions>
 
-### Files created/modified
-- [list all files]
+  Auto-implemented:
+    - <list of improvements applied, or "none">
 
-### Tests
-- [count] tests, all passing
-
-### Assumptions (unvalidated)
-- [list anything assumed but not proven]
-
-### Next session
-- [what to work on next]
+  Workflow delta (not auto-implemented):
+    - <debatable changes to consider>
+    - "none" if no changes needed
+────────────────────────────────────────────────
 ```
+
+Rules:
+
+- Keep it to 2-3 bullets per section — brevity over completeness
+- Focus on **actionable** improvements, not generic observations
+- If no improvements are obvious, output "No improvements identified this session"

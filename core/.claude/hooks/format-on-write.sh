@@ -8,15 +8,16 @@ fi
 
 # Skip auto-generated directories
 case "$FILE_PATH" in
-  */api/generated/*|*/generated/*|*/__generated__/*)
+  */api/generated/*|*/generated/*|*/__generated__/*|**/build/**)
     exit 0
     ;;
 esac
 
-# Only format files that Prettier can handle
+# Only format files that the formatter can handle
+# Default: Prettier for web/TS projects. Overridden by setup.sh for other stacks.
 case "$FILE_PATH" in
-  *.ts|*.tsx|*.js|*.jsx|*.json|*.css|*.md|*.html|*.yaml|*.yml)
-    npx prettier --write "$FILE_PATH" 2>/dev/null
+  {{FORMAT_EXTENSIONS_CASE}})
+    {{FORMAT_CMD}} "$FILE_PATH" 2>/dev/null
     ;;
 esac
 
