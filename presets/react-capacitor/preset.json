@@ -11,7 +11,7 @@
     "COVERAGE_THRESHOLD": "70",
     "SCOPES": "app, ui, lib, store, hooks, db, sync, crypto",
     "HAS_AGENTS": true,
-    "AGENT_LIST": ["app-dev"],
+    "AGENT_LIST": ["ui-dev", "data-dev"],
     "PACKAGE_MANAGER": "bun",
     "LINT_STAGED": {
       "*.{ts,tsx}": ["eslint --fix", "prettier --write"],

@@ -75,6 +75,16 @@ Scopes: {{SCOPES}}
 
 {{AGENT_ROSTER}}
 
+## Session Reporting
+
+When executing a plan or multi-step task:
+
+- Before each file edit: print a one-line summary of what you're about to change and why
+- After each bash command: print whether it succeeded or failed and a one-line result
+- After completing a logical group of changes: print a short progress summary
+- If a typecheck or test fails: print the error immediately, don't silently continue
+- When starting a major phase (RED, GREEN, REFACTOR, SHIP): announce it
+
 ## Available Skills
 
 - `/feature [--careful] <description>` — Orchestrated TDD cycle: Gherkin spec → tests → implement → refactor → ship.
