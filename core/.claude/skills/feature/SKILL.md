@@ -322,6 +322,43 @@ git commit -m "<message>"
 git push -u origin HEAD
 ```
 
+### Step 4.5: Copilot review gate
+
+After pushing, create the PR and wait for Copilot to post its review:
+
+```bash
+gh pr create --title "..." --body "..."
+```
+
+Poll until Copilot has reviewed (up to ~60s):
+
+```bash
+PR=$(gh pr view --json number -q .number)
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+for i in $(seq 1 6); do
+  COUNT=$(gh api "repos/$REPO/pulls/$PR/reviews" \
+    --jq '[.[] | select(.user.login | test("copilot"; "i"))] | length')
+  [ "$COUNT" -gt 0 ] && break
+  sleep 10
+done
+gh api "repos/$REPO/pulls/$PR/reviews" \
+  --jq '.[] | select(.user.login | test("copilot"; "i")) | .body'
+```
+
+Triage rules:
+
+| Severity | Action |
+|---|---|
+| Bug / security / correctness | Fix before merging |
+| Style / cosmetic / suggestion | Fix if trivial (<5 min), note in PR otherwise |
+| Scope / docs observation | Note in PR description, skip fix |
+
+If fixes needed: apply, commit `fix(<scope>): address Copilot review`, re-run tests, then merge.
+
+```bash
+gh pr merge <N> --squash --delete-branch
+```
+
 ### Step 5: Update backlog (if backlog exists)
 
 If `.claude/plans/backlog.md` exists:
