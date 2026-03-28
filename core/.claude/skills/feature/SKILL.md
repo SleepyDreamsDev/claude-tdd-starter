@@ -388,3 +388,66 @@ Rules:
 - Keep it to 2-3 bullets per section — brevity over completeness
 - Focus on **actionable** improvements, not generic observations
 - If no improvements are obvious, output "No improvements identified this session"
+
+---
+
+### Step 7.5: Starter sync check (conditional)
+
+**Trigger:** Run after Step 7 (Kaizen) if any Fix/Quality improvements were auto-implemented **or** any framework files were modified during this feature.
+
+**SYNC CANDIDATES** — files that are framework-generic and live in claude-tdd-starter:
+
+| Project path | Starter path |
+|---|---|
+| `.claude/hooks/*.sh` | `core/.claude/hooks/*.sh` |
+| `.claude/skills/feature/SKILL.md` | `core/.claude/skills/feature/SKILL.md` |
+| `.claude/skills/security/SKILL.md` | `core/.claude/skills/security/SKILL.md` |
+| `.claude/agents/reviewer.md` | `core/.claude/agents/reviewer.md.template` |
+| `.claude/settings.json` | `core/.claude/settings.json` |
+| `.claude/rules/tdd-workflow.md` | `core/.claude/rules/tdd-workflow.md` |
+| `.claude/rules/session-reporting.md` | `core/.claude/rules/session-reporting.md` |
+| `CLAUDE.md` | `core/CLAUDE.md.template` (manual — needs placeholder review) |
+| `.husky/*` | `core/.husky/*` |
+| `docs/solo-dev-sdlc-blueprint.md` | `core/docs/solo-dev-sdlc-blueprint.md` |
+| `docs/tdd-guide.md` | `core/docs/tdd-guide.md` |
+
+**Classification rules:**
+
+- **SYNC** — clearly framework-generic (hook scripts, TDD/session rules, skill phases, reviewer agent)
+- **ASK** — could go either way (new hooks, structural changes to CLAUDE.md, new rule patterns)
+- **SKIP** — project-specific (business rules, design tokens, memory files, backlog content)
+
+**Procedure:**
+
+1. Check which SYNC CANDIDATE files were modified during this feature session
+2. If none were modified → **skip silently**
+3. For each modified file, classify as SYNC / ASK / SKIP
+4. Output:
+   ```
+   ── STARTER SYNC CHECK ───────────────────────────
+     Modified framework files:
+       SYNC  .claude/hooks/example.sh
+       ASK   .claude/skills/feature/SKILL.md
+       SKIP  specs/rules/order-flow.md
+   ─────────────────────────────────────────────────
+   ```
+5. Ask user:
+   > "These framework improvements were made during this feature. Should I sync them to `claude-tdd-starter`?
+   > SYNC items will be applied automatically. ASK items are listed above — confirm which to include."
+6. If user confirms (all or selected items):
+   a. `cd {{STARTER_REPO_PATH}}`
+   b. Apply each confirmed change to its corresponding `core/` path (use the table above)
+   c. For `CLAUDE.md → core/CLAUDE.md.template`: apply changes manually, preserving `{{PLACEHOLDER}}` markers — do NOT overwrite them
+   d. Create branch: `sync/<project-slug>-<YYYY-MM-DD>`
+   e. Commit: `feat(core): sync improvements from <project-slug>`
+   f. Ask before remote push: "Push branch to origin? (gh pr create afterward?)"
+   g. Return to project directory
+7. If user declines → skip silently
+
+**What NOT to sync:**
+
+- Project-specific rule files (business context, security policies, order flow)
+- `.claude/rules/technical.md` (project-specific framework conventions)
+- `.claude/memory/` (architecture decisions, project context)
+- `.claude/plans/backlog.md` content
+- Any project-specific design or documentation files
