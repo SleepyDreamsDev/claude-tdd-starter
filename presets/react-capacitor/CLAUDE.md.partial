@@ -17,13 +17,14 @@
 ```
 src/
 ├── pages/           # Route components (screens)
-├── components/      # Reusable UI components (shadcn/ui)
-├── hooks/           # Custom React hooks
+├���─ components/      # Reusable UI components (shadcn/ui)
+├─��� hooks/           # Custom React hooks
+├── contexts/        # React context providers
 ├── store/           # Zustand state stores
 ├── lib/
 │   ├── db/          # Dexie database schema, migrations, queries
 │   ├── sync/        # Google Drive sync logic
-│   ├── crypto/      # Web Crypto encryption/decryption utils
+│   ��── crypto/      # Web Crypto encryption/decryption utils
 │   └── utils/       # General utilities, formatters
 ├── api/             # External API client (if any)
 ├── test/            # Test setup, utilities, mocks
@@ -35,10 +36,31 @@ src/
 
 ## Agent Roster
 
+```
+                ┌─────────────────────────────┐
+                │   /feature skill (Opus)      │
+                │   Reads plan, decomposes     │
+                │   tasks, dispatches agents   │
+                ├──────────┬──────────┬────────┤
+                │          │          │        │
+                ▼          ���          ▼        ▼
+             ui-dev    data-dev   reviewer  /security
+            (Sonnet)   (Sonnet)   (Opus)    (on demand)
+             Pages     Database   Read-only  Threat model
+             Comps     Sync       Security   OWASP Top 10
+             Hooks     Crypto     Quality    Platform checks
+             Contexts  Storage    Tests
+```
+
 | Agent | Model | Scope | When used |
 |---|---|---|---|
-| **app-dev** | Sonnet | `src/` — all app code | RED/GREEN phases |
+| **ui-dev** | Sonnet | `src/components/`, `src/pages/`, `src/hooks/`, `src/contexts/` | RED/GREEN for UI |
+| **data-dev** | Sonnet | `src/lib/` (database, sync, crypto, storage) | RED/GREEN for data layer |
 | **reviewer** | Opus | Full repo (read-only + tests) | PHASE 5 validation |
+
+**Orchestration:** Main session (Opus) handles planning, specs, refactoring, and shipping.
+Implementation agents (Sonnet) handle fast RED→GREEN loops. Reviewer (Opus) does thorough validation.
+For cross-cutting features, data-dev runs first (foundations), then ui-dev (consumes data layer).
 
 ## Additional Conventions
 

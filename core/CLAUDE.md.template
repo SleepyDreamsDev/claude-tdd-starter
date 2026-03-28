@@ -47,16 +47,6 @@ Scopes: {{SCOPES}}
 - ESLint + Prettier (auto-formatted by hooks)
 - Import order: external -> internal -> relative
 
-## TDD Workflow Rules
-
-- NEVER write implementation and tests in the same step.
-- RED: tests only. GREEN: implementation only. REFACTOR: improve only.
-- If a test fails during REFACTOR, revert immediately, then try differently.
-- After GREEN, always refactor before shipping. Never ship first-pass code.
-- Never modify files in `*/generated/*` or `*/__generated__/*`
-- Testing Trophy priority: integration tests > unit tests > E2E tests
-- Coverage target: {{COVERAGE_THRESHOLD}}%+ on business logic
-
 ### Test Runner Reference
 
 {{TEST_RUNNER_TABLE}}
@@ -74,6 +64,14 @@ Scopes: {{SCOPES}}
 - Created automatically by `/feature` skill in PHASE 1.5 (SPECIFY)
 
 {{AGENT_ROSTER}}
+
+## Rules
+
+Detailed rules live in dedicated files — read them for the full constraints:
+
+- **TDD workflow:** `.claude/rules/tdd-workflow.md`
+- **Session reporting:** `.claude/rules/session-reporting.md`
+- **Technical conventions:** `.claude/rules/technical.md` _(create per project)_
 
 ## Available Skills
 

@@ -216,12 +216,15 @@ print(m.group(1).rstrip() if m else '')
 " 2>/dev/null
 }
 
+SECURITY_GATE_PATTERNS=""
+
 if [ -f "$PRESET_DIR/feature-overrides.md" ]; then
   WORKSPACE_TABLE=$(extract_section "$PRESET_DIR/feature-overrides.md" "Workspace Detection" "Test Patterns")
   TEST_PATTERNS=$(extract_section "$PRESET_DIR/feature-overrides.md" "Test Patterns" "Test Commands")
   TEST_COMMANDS=$(extract_section "$PRESET_DIR/feature-overrides.md" "Test Commands" "Test Runner Reference")
-  AGENT_DISPATCH=$(extract_section "$PRESET_DIR/feature-overrides.md" "Agent Dispatch" "Platform Security")
+  AGENT_DISPATCH=$(extract_section "$PRESET_DIR/feature-overrides.md" "Agent Dispatch" "Security Gate Patterns")
   VALIDATION_COMMANDS=$(extract_section "$PRESET_DIR/feature-overrides.md" "Validation Commands" "Agent Dispatch")
+  SECURITY_GATE_PATTERNS=$(extract_section "$PRESET_DIR/feature-overrides.md" "Security Gate Patterns" "Platform Security")
 fi
 
 # Use python for reliable multi-line placeholder replacement
@@ -236,12 +239,14 @@ patterns = '''$TEST_PATTERNS'''
 commands = '''$TEST_COMMANDS'''
 dispatch = '''$AGENT_DISPATCH'''
 validation = '''$VALIDATION_COMMANDS'''
+security_gate = '''$SECURITY_GATE_PATTERNS'''
 
 content = content.replace('{{WORKSPACE_TABLE}}', workspace)
 content = content.replace('{{TEST_PATTERNS}}', patterns)
 content = content.replace('{{TEST_COMMANDS}}', commands)
 content = content.replace('{{AGENT_DISPATCH}}', dispatch)
 content = content.replace('{{VALIDATION_COMMANDS}}', validation.replace('### Validation Commands (PHASE 5)', '').strip() if validation else '$TYPECHECK_CMD\n$TEST_CI_CMD')
+content = content.replace('{{SECURITY_GATE_PATTERNS}}', security_gate.strip() if security_gate else 'No security gate patterns configured for this preset.')
 content = content.replace('{{TYPECHECK_CMD}}', '$TYPECHECK_CMD')
 content = content.replace('{{TEST_CI_CMD}}', '$TEST_CI_CMD')
 
@@ -256,6 +261,7 @@ with open('$FEATURE_SKILL', 'w') as f:
   sed -i.bak "s|{{TEST_COMMANDS}}||g" "$FEATURE_SKILL"
   sed -i.bak "s|{{AGENT_DISPATCH}}||g" "$FEATURE_SKILL"
   sed -i.bak "s|{{VALIDATION_COMMANDS}}|$TYPECHECK_CMD\n$TEST_CI_CMD|g" "$FEATURE_SKILL"
+  sed -i.bak "s|{{SECURITY_GATE_PATTERNS}}|No security gate patterns configured for this preset.|g" "$FEATURE_SKILL"
   rm -f "$FEATURE_SKILL.bak"
 }
 
@@ -345,6 +351,16 @@ $TEST_RUNNER_TABLE
 - One \`.feature\` file per feature/PR
 
 $AGENT_ROSTER
+
+## Session Reporting
+
+When executing a plan or multi-step task:
+
+- Before each file edit: print a one-line summary of what you're about to change and why
+- After each bash command: print whether it succeeded or failed and a one-line result
+- After completing a logical group of changes: print a short progress summary
+- If a typecheck or test fails: print the error immediately, don't silently continue
+- When starting a major phase (RED, GREEN, REFACTOR, SHIP): announce it
 
 ## Available Skills
 
@@ -498,7 +514,7 @@ echo ""
 echo "What was set up:"
 echo "  - .claude/skills/feature/  — /feature TDD skill (Gherkin + FAST_MODE)"
 echo "  - .claude/skills/security/ — /security review skill"
-echo "  - .claude/hooks/           — format, typecheck, block-dangerous, notify"
+echo "  - .claude/hooks/           — format, typecheck, block-dangerous, notify, auto-approve-plan"
 echo "  - .claude/settings.json    — hook config + permissions"
 if [ "$HAS_AGENTS" = "true" ]; then
   echo "  - .claude/agents/          — specialist agents + reviewer"

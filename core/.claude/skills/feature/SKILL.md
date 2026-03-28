@@ -1,12 +1,14 @@
 ---
 name: feature
 description: >
-  End-to-end TDD feature delivery. Writes Gherkin specs, tests, implements,
-  refactors, commits. Default FAST_MODE uses combined RED+GREEN dispatch and
-  parallel validation. Kaizen retrospective after each delivery. Use when the
-  user says "implement", "build", "add feature", or runs /feature.
+  End-to-end TDD feature delivery with orchestrated agent dispatch. Writes Gherkin
+  specs, dispatches specialist agents for RED+GREEN, gates on reviewer,
+  auto-invokes /security for auth/crypto/sync changes. Default FAST_MODE uses
+  combined RED+GREEN dispatch. Use when the user says "implement", "build",
+  "add feature", or runs /feature.
 command: /feature
 argument-hint: "[--careful] <feature description>"
+allowed-tools: Read, Glob, Grep, Write, Edit, MultiEdit, Bash, TodoWrite
 ---
 
 # Feature Delivery: Orchestrated TDD Cycle
@@ -71,11 +73,11 @@ Output (only if plan was loaded):
 ## PHASE 1 — DISCOVER (silent, no output needed)
 
 1. Read CLAUDE.md for project conventions.
-2. Determine the target workspace(s) from the feature description and/or plan file:
+2. Determine the target domain(s) from the feature description and/or plan file:
 
 {{WORKSPACE_TABLE}}
 
-3. For the primary workspace, find and read ONE existing test file to learn patterns:
+3. For the target domain, find and read ONE existing test file to learn patterns:
    - Run a directory listing of test files, read one to learn the style.
    - Note: imports, describe/it structure, assertion patterns, test utilities.
 
@@ -88,7 +90,7 @@ Output (only if plan was loaded):
 
 Output:
 
-> ── PHASE 1 DISCOVER ✓ ── \<workspace(s)>, \<test-framework>
+> ── PHASE 1 DISCOVER ✓ ── domain(s): \<detected>, agent(s): \<to dispatch>
 
 ---
 
@@ -129,7 +131,7 @@ Rules:
 - One `.feature` file per `/feature` invocation
 - Not executable — documentation only, no cucumber dependency
 - Scenarios should cover: happy path, validation, edge cases, error conditions
-- Write scenarios for ALL target workspaces in the same file
+- Write scenarios for ALL target domains in the same file
 
 ### Phase status banner
 
@@ -158,7 +160,7 @@ Output:
 
 ### Testing Trophy priority (most valuable first):
 
-1. **Integration tests** — API endpoints with real request/response, component behavior
+1. **Integration tests** — component behavior, data flow through lib functions
 2. **Unit tests** — Pure functions, calculations, validators
 3. **Edge cases** — Boundary values, error conditions, empty states
 
@@ -172,7 +174,7 @@ If no specialist agents are available, execute RED+GREEN directly:
 
 **RED — Write failing tests:**
 
-1. Create test file(s) in the appropriate location using workspace conventions.
+1. Create test file(s) in the appropriate location using project conventions.
 2. Write 5-8 test cases covering:
    - Happy path (main behavior works)
    - Input validation (bad inputs rejected)
@@ -226,11 +228,11 @@ Output:
 
 ---
 
-## PHASE 5 — SHIP: Commit and Checkpoint
+## PHASE 5 — SHIP: Validate, Review, Commit
 
 ### Step 1: Full validation (parallel)
 
-Run these checks — if multiple are needed, make parallel Bash tool calls:
+Run these checks — make parallel Bash tool calls:
 
 ```bash
 {{VALIDATION_COMMANDS}}
@@ -238,18 +240,59 @@ Run these checks — if multiple are needed, make parallel Bash tool calls:
 
 If any fail, fix and re-run only the failing check.
 
-### Step 1.5: Quick security check
+### Step 2: Reviewer gate (always — mode depends on change type)
 
-Review the new/modified code for common security issues:
-- **Input validation**: Are all user inputs validated?
-- **Auth/authz**: Do new endpoints/routes have proper guards?
-- **Injection**: No raw SQL, no innerHTML, no dynamic code execution, no unsanitized templates
-- **Data exposure**: Responses don't leak sensitive fields (passwords, tokens, internal IDs)
-- **Error messages**: Errors don't expose stack traces or internal details to clients
+Classify the changes to choose the reviewer mode:
 
-If any issue found, fix it and re-run tests before proceeding.
+**CSS/presentation-only** if ALL of these hold:
 
-### Step 2: Prepare commit
+- Every changed file is `.tsx` or `.css` in `src/pages/` or `src/components/`
+- The diff only adds/modifies CSS class strings (Tailwind tokens)
+- No new functions, logic branches, or state changes
+- No new imports beyond a responsive-layout hook (e.g., `useIsMobile`)
+
+**Otherwise** → full review (logic/API/security).
+
+#### Light reviewer dispatch (CSS/presentation-only):
+
+```
+Agent(subagent_type: "reviewer",
+      prompt: "Light review — CSS/presentation changes only.
+        Skip the full test suite (already ran in Step 1).
+        Run only: {{TYPECHECK_CMD}}
+        Read all changed files and check for:
+        - Broken responsive logic (missing breakpoint variants)
+        - Inconsistent desktop overrides (e.g., sm: without base)
+        - Hardcoded values that should have responsive variants
+        - Accidental logic changes mixed into the CSS diff
+        Skip OWASP/security checks — no logic changed.
+        Report MEDIUM (inconsistency) or LOW (style) findings only.")
+```
+
+#### Full reviewer dispatch (logic/API/security):
+
+```
+Agent(subagent_type: "reviewer",
+      prompt: "Review all changes from this feature delivery.
+        Run typecheck ({{TYPECHECK_CMD}}) and tests ({{TEST_CI_CMD}}).
+        Check: type safety, input validation, platform security,
+        injection risks, data exposure, error handling, data integrity.
+        Report findings with severity ratings (CRITICAL/HIGH/MEDIUM/LOW).")
+```
+
+If reviewer reports CRITICAL or HIGH findings, fix them before proceeding.
+
+### Step 2.5: Security gate (conditional)
+
+Auto-invoke `/security` if the feature modified ANY files matching these patterns:
+
+{{SECURITY_GATE_PATTERNS}}
+
+Also invoke if the change touches >5 files (large change surface).
+
+Otherwise, skip this step.
+
+### Step 3: Prepare commit
 
 1. Create a feature branch if on main:
    ```bash
@@ -264,14 +307,14 @@ If any issue found, fix it and re-run tests before proceeding.
    feat(<scope>): <description>
    ```
 
-### Step 3: Commit and push
+### Step 4: Commit and push
 
 ```bash
 git commit -m "<message>"
 git push -u origin HEAD
 ```
 
-### Step 4: Update backlog (if backlog exists)
+### Step 5: Update backlog (if backlog exists)
 
 If `.claude/plans/backlog.md` exists:
 
@@ -280,7 +323,7 @@ If `.claude/plans/backlog.md` exists:
 - If new follow-up work was discovered, add it as a new `[ ]` item
 - Commit the backlog update (separate commit)
 
-### Step 5: Checkpoint summary
+### Step 6: Checkpoint summary
 
 Output using this bordered format:
 
@@ -294,6 +337,9 @@ Output using this bordered format:
   Branch: feature/<slug>
   Commit: <short hash> <message>
 
+  Domain(s): <detected domains>
+  Agent(s) dispatched: <list> + reviewer
+
   Files created/modified:
     - <file list>
 
@@ -305,18 +351,18 @@ Output using this bordered format:
 ══════════════════════════════════════════════════════
 ```
 
-### Step 6: Kaizen retrospective
+### Step 7: Kaizen retrospective
 
 After every feature delivery, briefly evaluate the session and suggest improvements.
 
 Classify each improvement as:
 
-| Type | Action |
-|---|---|
-| **Fix** — broken/stale code discovered during feature | Auto-implement + commit |
-| **Quality** — clear best practice missing (e.g., `as any` cast) | Auto-implement + commit |
-| **Workflow** — process change suggestion | Output only, do NOT auto-implement (debatable) |
-| **Architecture** — structural change to codebase | Output only, do NOT auto-implement (debatable) |
+| Type                                                            | Action                                         |
+| --------------------------------------------------------------- | ---------------------------------------------- |
+| **Fix** — broken/stale code discovered during feature           | Auto-implement + commit                        |
+| **Quality** — clear best practice missing (e.g., `as any` cast) | Auto-implement + commit                        |
+| **Workflow** — process change suggestion                        | Output only, do NOT auto-implement (debatable) |
+| **Architecture** — structural change to codebase                | Output only, do NOT auto-implement (debatable) |
 
 Output:
 
@@ -342,3 +388,66 @@ Rules:
 - Keep it to 2-3 bullets per section — brevity over completeness
 - Focus on **actionable** improvements, not generic observations
 - If no improvements are obvious, output "No improvements identified this session"
+
+---
+
+### Step 7.5: Starter sync check (conditional)
+
+**Trigger:** Run after Step 7 (Kaizen) if any Fix/Quality improvements were auto-implemented **or** any framework files were modified during this feature.
+
+**SYNC CANDIDATES** — files that are framework-generic and live in claude-tdd-starter:
+
+| Project path | Starter path |
+|---|---|
+| `.claude/hooks/*.sh` | `core/.claude/hooks/*.sh` |
+| `.claude/skills/feature/SKILL.md` | `core/.claude/skills/feature/SKILL.md` |
+| `.claude/skills/security/SKILL.md` | `core/.claude/skills/security/SKILL.md` |
+| `.claude/agents/reviewer.md` | `core/.claude/agents/reviewer.md.template` |
+| `.claude/settings.json` | `core/.claude/settings.json` |
+| `.claude/rules/tdd-workflow.md` | `core/.claude/rules/tdd-workflow.md` |
+| `.claude/rules/session-reporting.md` | `core/.claude/rules/session-reporting.md` |
+| `CLAUDE.md` | `core/CLAUDE.md.template` (manual — needs placeholder review) |
+| `.husky/*` | `core/.husky/*` |
+| `docs/solo-dev-sdlc-blueprint.md` | `core/docs/solo-dev-sdlc-blueprint.md` |
+| `docs/tdd-guide.md` | `core/docs/tdd-guide.md` |
+
+**Classification rules:**
+
+- **SYNC** — clearly framework-generic (hook scripts, TDD/session rules, skill phases, reviewer agent)
+- **ASK** — could go either way (new hooks, structural changes to CLAUDE.md, new rule patterns)
+- **SKIP** — project-specific (business rules, design tokens, memory files, backlog content)
+
+**Procedure:**
+
+1. Check which SYNC CANDIDATE files were modified during this feature session
+2. If none were modified → **skip silently**
+3. For each modified file, classify as SYNC / ASK / SKIP
+4. Output:
+   ```
+   ── STARTER SYNC CHECK ───────────────────────────
+     Modified framework files:
+       SYNC  .claude/hooks/example.sh
+       ASK   .claude/skills/feature/SKILL.md
+       SKIP  specs/rules/order-flow.md
+   ─────────────────────────────────────────────────
+   ```
+5. Ask user:
+   > "These framework improvements were made during this feature. Should I sync them to `claude-tdd-starter`?
+   > SYNC items will be applied automatically. ASK items are listed above — confirm which to include."
+6. If user confirms (all or selected items):
+   a. `cd {{STARTER_REPO_PATH}}`
+   b. Apply each confirmed change to its corresponding `core/` path (use the table above)
+   c. For `CLAUDE.md → core/CLAUDE.md.template`: apply changes manually, preserving `{{PLACEHOLDER}}` markers — do NOT overwrite them
+   d. Create branch: `sync/<project-slug>-<YYYY-MM-DD>`
+   e. Commit: `feat(core): sync improvements from <project-slug>`
+   f. Ask before remote push: "Push branch to origin? (gh pr create afterward?)"
+   g. Return to project directory
+7. If user declines → skip silently
+
+**What NOT to sync:**
+
+- Project-specific rule files (business context, security policies, order flow)
+- `.claude/rules/technical.md` (project-specific framework conventions)
+- `.claude/memory/` (architecture decisions, project context)
+- `.claude/plans/backlog.md` content
+- Any project-specific design or documentation files
