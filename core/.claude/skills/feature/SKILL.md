@@ -86,6 +86,14 @@ Output (only if plan was loaded):
 4. Identify where the new feature's source and test files should live based on
    existing directory structure.
 
+5. Read the relevant scaffold template if one exists:
+   - **New page** (domain: `src/app/`): read `.claude/templates/new-page.md`
+   - **New component** (domain: `src/components/`): read `.claude/templates/new-component.md`
+   - If both page and component are needed, read both.
+   - If no templates directory exists, skip this step.
+   - Apply any CSS variable patterns, checklists, or conventions from the template
+     when writing the skeleton in GREEN phase.
+
 ### Phase status banner
 
 Output:
