@@ -35,7 +35,9 @@ cd claude-tdd-starter
 | `typecheck-on-edit.sh` | After editing .ts/.tsx              | TypeScript/lint check                                                                  |
 | `block-dangerous.sh`   | Before Bash commands                | Blocks 16 dangerous patterns (rm -rf, force push, DROP TABLE, docker privileged, etc.) |
 | `auto-approve-plan.sh` | On ExitPlanMode                     | Auto-approves plan exits so the interactive picker never blocks autonomous flow        |
+| `style-audit.sh`       | After editing .tsx/.jsx             | Warns on anti-patterns: hardcoded hex, inline fontFamily, hardcoded px (non-blocking)  |
 | `notify.sh`            | When Claude needs attention / stops | Desktop notification (macOS/Linux/Windows)                                             |
+| `stop-reminder.sh`     | When Claude stops                   | Session checklist: backlog, tests, types, framework sync                               |
 
 ### Specialist Agents (preset-dependent)
 
@@ -139,10 +141,14 @@ claude-tdd-starter/
 ├── core/                             # Framework-agnostic (always copied)
 │   ├── .claude/
 │   │   ├── settings.json             # Hook config + permissions
-│   │   ├── hooks/                    # 5 hook scripts
+│   │   ├── hooks/                    # 7 hook scripts
 │   │   ├── skills/
 │   │   │   ├── feature/SKILL.md      # Orchestrated TDD with Gherkin + Kaizen
 │   │   │   └── security/SKILL.md     # OWASP security review
+│   │   ├── rules/
+│   │   │   ├── tdd-workflow.md       # TDD phases + testing trophy
+│   │   │   ├── session-reporting.md  # Phase banners + Kaizen format
+│   │   │   └── plugin-gate.md        # Token optimization: disabled plugin notifications
 │   │   ├── agents/
 │   │   │   ├── reviewer.md.template  # Reviewer (filled by setup.sh)
 │   │   │   └── README.md             # Agent system docs
@@ -153,7 +159,10 @@ claude-tdd-starter/
 │   ├── .husky/                       # Git hooks
 │   ├── commitlint.config.js
 │   ├── CLAUDE.md.template
-│   └── docs/                         # Reference guides
+│   └── docs/
+│       ├── framework-architecture.md # Full framework approach + capabilities
+│       ├── tdd-guide.md              # Quick start tutorial
+│       └── solo-dev-sdlc-blueprint.md # Full SDLC reference
 ├── presets/                           # Stack-specific configs
 │   ├── nestjs-react-monorepo/
 │   │   ├── agents/                   # backend-dev, frontend-dev, infra-agent
@@ -208,6 +217,56 @@ PHASE 5 (SHIP) now includes two quality gates before committing:
 ### Plan Auto-Approval
 
 The `auto-approve-plan.sh` hook auto-approves plan mode exits so the interactive picker never appears. This enables fully autonomous plan → execute flows. To disable this and require manual approval, remove the `ExitPlanMode` matcher from `.claude/settings.json`.
+
+## Token Optimization
+
+Claude Code plugins inject skill definitions, agent types, MCP tools, and system instructions into every conversation turn — even when unused. A typical setup with 18 plugins adds ~14,000-17,000 tokens of system context per turn.
+
+### Plugin Gate (`.claude/rules/plugin-gate.md`)
+
+Disable unused plugins at the project level and let Claude notify you when a disabled plugin is needed. Add to your project's `.claude/settings.json`:
+
+```json
+{
+  "enabledPlugins": {
+    "atlassian@claude-plugins-official": false,
+    "sentry@claude-plugins-official": false,
+    "greptile@claude-plugins-official": false,
+    "skill-creator@claude-plugins-official": false,
+    "claude-code-setup@claude-plugins-official": false,
+    "ralph-loop@claude-plugins-official": false,
+    "code-simplifier@claude-plugins-official": false
+  }
+}
+```
+
+The `plugin-gate.md` rule (included in `core/.claude/rules/`) maps each disabled plugin to its trigger condition. Claude reads this at session start and says: _"This task would benefit from the `sentry` plugin. Enable it via `/plugins`."_
+
+**Customize the list per project.** Keep plugins your project actively uses (e.g., `playwright` for E2E testing, `context7` for docs lookup). Disable everything else.
+
+### Effort Level Strategy
+
+Set global default to `"medium"` in `~/.claude/settings.json`. Escalate with `/effort high` for feature work and debugging. Medium handles 70%+ of interactions (quick edits, commits, code reading).
+
+### Model Switching
+
+- `/model sonnet` for: commit messages, simple edits, code reading, git operations
+- `/model opus` for: `/feature` TDD cycles, debugging, multi-file refactors
+
+### Session Hygiene
+
+- Start a new session after completing a feature (the `/feature` completion summary captures state)
+- Use `/clear` when switching context — conversation history grows with every turn
+- Each sub-agent loads full system context independently — avoid parallel agent dispatches for fewer than 3 independent work items
+
+### Expected Savings
+
+| Change                  | Token Reduction             |
+| ----------------------- | --------------------------- |
+| Disable unused plugins  | ~15-30% per turn            |
+| Effort level medium     | ~15-25% on routine turns    |
+| Sonnet for simple tasks | Same tokens, ~5-10x cheaper |
+| Session hygiene         | ~15-20% per session         |
 
 ## Advanced Configuration
 
