@@ -35,7 +35,9 @@ cd claude-tdd-starter
 | `typecheck-on-edit.sh` | After editing .ts/.tsx              | TypeScript/lint check                                                                  |
 | `block-dangerous.sh`   | Before Bash commands                | Blocks 16 dangerous patterns (rm -rf, force push, DROP TABLE, docker privileged, etc.) |
 | `auto-approve-plan.sh` | On ExitPlanMode                     | Auto-approves plan exits so the interactive picker never blocks autonomous flow        |
+| `style-audit.sh`       | After editing .tsx/.jsx             | Warns on anti-patterns: hardcoded hex, inline fontFamily, hardcoded px (non-blocking)  |
 | `notify.sh`            | When Claude needs attention / stops | Desktop notification (macOS/Linux/Windows)                                             |
+| `stop-reminder.sh`     | When Claude stops                   | Session checklist: backlog, tests, types, framework sync                               |
 
 ### Specialist Agents (preset-dependent)
 
@@ -139,7 +141,7 @@ claude-tdd-starter/
 ├── core/                             # Framework-agnostic (always copied)
 │   ├── .claude/
 │   │   ├── settings.json             # Hook config + permissions
-│   │   ├── hooks/                    # 5 hook scripts
+│   │   ├── hooks/                    # 7 hook scripts
 │   │   ├── skills/
 │   │   │   ├── feature/SKILL.md      # Orchestrated TDD with Gherkin + Kaizen
 │   │   │   └── security/SKILL.md     # OWASP security review

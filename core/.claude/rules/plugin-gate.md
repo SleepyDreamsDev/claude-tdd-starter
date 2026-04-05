@@ -3,8 +3,8 @@
 > Framework-generic. Reusable across all projects.
 > Customize the disabled plugins list per project.
 
-The following plugins are disabled for token optimization.
-Before starting a task, check if any disabled plugin is needed and notify the user.
+If any of the following plugins are disabled in `.claude/settings.json` for token optimization,
+check before starting a task whether a disabled plugin is needed and notify the user.
 
 | Disabled Plugin     | Re-enable when...                                           |
 | ------------------- | ----------------------------------------------------------- |
