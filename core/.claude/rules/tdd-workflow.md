@@ -51,12 +51,12 @@ UI components: test behavior, not implementation details.
 
 ## Test File Location
 
-| Domain                 | Source            | Test file                                |
-| ---------------------- | ----------------- | ---------------------------------------- |
-| Page / route           | `src/app/`        | `src/app/**/__tests__/*.test.tsx`        |
-| Component              | `src/components/` | `src/components/**/__tests__/*.test.tsx` |
-| Server action / router | `src/server/`     | `src/server/**/__tests__/*.test.ts`      |
-| Utility / lib          | `src/lib/`        | `src/lib/**/__tests__/*.test.ts`         |
+| Domain        | Source            | Test file                                |
+| ------------- | ----------------- | ---------------------------------------- |
+| Page / route  | `src/app/`        | `src/app/**/__tests__/*.test.tsx`        |
+| Component     | `src/components/` | `src/components/**/__tests__/*.test.tsx` |
+| Utility / lib | `src/lib/`        | `src/lib/**/__tests__/*.test.ts`         |
+| Hook          | `src/hooks/`      | `src/hooks/__tests__/*.test.ts`          |
 
 ## Escape Hatches
 

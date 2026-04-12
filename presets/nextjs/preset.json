@@ -9,7 +9,7 @@
     "FORMAT_CMD": "pnpm prettier --write",
     "FORMAT_EXTENSIONS": "*.ts|*.tsx|*.js|*.jsx|*.json|*.css|*.md|*.html|*.yaml|*.yml",
     "COVERAGE_THRESHOLD": "70",
-    "SCOPES": "app, api, components, lib, auth, db",
+    "SCOPES": "app, components, lib, i18n, booking, providers, layout",
     "HAS_AGENTS": false,
     "PACKAGE_MANAGER": "pnpm",
     "LINT_STAGED": {
@@ -21,6 +21,7 @@
       "test:watch": "vitest",
       "test:coverage": "vitest run --coverage",
       "test:ci": "vitest run",
+      "type-check": "tsc --noEmit",
       "typecheck": "tsc --noEmit",
       "prepare": "husky"
     }

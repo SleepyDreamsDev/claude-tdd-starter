@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forever Clean — Desktop Homepage</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #e8e6ee; padding: 32px; min-height: 100vh; }
+.frame { max-width: 1200px; margin: 0 auto; background: #faf9fc; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(45,43,64,0.12); }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 12px 32px; background: #fff; border-bottom: 0.5px solid #e4e0ec; }
+.header-left { display: flex; align-items: center; gap: 32px; }
+.logo { display: flex; align-items: center; gap: 6px; }
+.logo-bar { width: 5px; height: 22px; border-radius: 3px; background: #7b8cc4; }
+.logo-text { font-size: 16px; font-weight: 500; color: #2d2b40; }
+.nav { display: flex; gap: 24px; font-size: 14px; }
+.nav-active { color: #7b8cc4; font-weight: 500; }
+.nav-item { color: #8884a0; cursor: pointer; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.lang-switch { display: flex; border: 0.5px solid #d4d0de; border-radius: 6px; overflow: hidden; }
+.lang-on { padding: 4px 12px; background: #7b8cc4; color: #fff; font-size: 12px; }
+.lang-off { padding: 4px 12px; font-size: 12px; color: #8884a0; }
+.cta-btn { background: #7b8cc4; color: #fff; padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+.hero-row { display: flex; }
+.hero-content { flex: 1; padding: 48px 40px 44px; }
+.badge { display: inline-flex; align-items: center; gap: 5px; background: #ece8f4; padding: 5px 14px; border-radius: 6px; margin-bottom: 20px; font-size: 11px; color: #5a5680; font-weight: 500; }
+.badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #7b8cc4; opacity: 0.5; }
+h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 36px; font-weight: 400; color: #2d2b40; line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 12px; }
+.hero-desc { font-size: 16px; color: #8884a0; line-height: 1.6; max-width: 400px; margin-bottom: 32px; }
+.search-row { display: flex; gap: 8px; max-width: 520px; }
+.search-field { flex: 1; background: #fff; border: 0.5px solid #d4d0de; border-radius: 10px; padding: 12px 16px; font-size: 14px; color: #aaa6ba; display: flex; justify-content: space-between; align-items: center; }
+.search-btn { background: #7b8cc4; color: #fff; border-radius: 10px; padding: 12px 28px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+.sidebar { width: 280px; padding: 32px 24px; border-left: 0.5px solid #e4e0ec; background: #fff; }
+.sidebar-label { font-size: 11px; color: #8884a0; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
+.mini-provider { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; cursor: pointer; }
+.mini-avatar { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.mini-name { font-size: 13px; font-weight: 500; color: #2d2b40; }
+.mini-rating { font-size: 11px; color: #6a6680; }
+.mini-price { font-size: 13px; font-weight: 500; color: #7b8cc4; }
+.sidebar-link { margin-top: 16px; font-size: 12px; color: #7b8cc4; text-align: center; padding: 8px; border: 0.5px solid #d4d0de; border-radius: 8px; cursor: pointer; }
+.services-section { padding: 28px 40px; background: #fff; border-top: 0.5px solid #e4e0ec; }
+.section-label { font-size: 11px; color: #8884a0; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 18px; }
+.services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.service-card { background: #faf9fc; border: 0.5px solid #e4e0ec; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; }
+.service-icon { width: 44px; height: 44px; border-radius: 10px; background: #ece8f4; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; }
+.service-name { font-size: 14px; font-weight: 500; color: #2d2b40; }
+.service-price { font-size: 12px; color: #aaa6ba; margin-top: 2px; }
+.steps-row { padding: 24px 40px; border-top: 0.5px solid #e4e0ec; display: flex; gap: 20px; }
+.step { flex: 1; display: flex; align-items: center; gap: 12px; }
+.step-divider { width: 0.5px; background: #e4e0ec; align-self: stretch; }
+.step-num { width: 40px; height: 40px; border-radius: 50%; background: #ece8f4; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #7b8cc4; font-weight: 500; flex-shrink: 0; }
+.step-title { font-size: 14px; font-weight: 500; color: #2d2b40; }
+.step-desc { font-size: 13px; color: #8884a0; }
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 0.5px solid #e4e0ec; background: #fff; }
+.stat { padding: 20px 24px; text-align: center; }
+.stat:not(:last-child) { border-right: 0.5px solid #e4e0ec; }
+.stat-value { font-size: 24px; font-weight: 500; color: #7b8cc4; }
+.stat-label { font-size: 13px; color: #8884a0; margin-top: 2px; }
+.footer { padding: 16px 32px; background: #f0eef4; border-top: 0.5px solid #d4d0de; display: flex; justify-content: space-between; font-size: 12px; color: #8884a0; }
+.footer-links { display: flex; gap: 20px; }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="logo"><div class="logo-bar"></div><span class="logo-text">Forever Clean</span></div>
+      <div class="nav">
+        <span class="nav-active">Acasă</span>
+        <span class="nav-item">Specialiști</span>
+        <span class="nav-item">Cum funcționează</span>
+        <span class="nav-item">Despre noi</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="lang-switch"><span class="lang-on">RO</span><span class="lang-off">RU</span></div>
+      <div class="cta-btn">Rezervă acum</div>
+    </div>
+  </div>
+
+  <div class="hero-row">
+    <div class="hero-content">
+      <div class="badge"><div class="badge-dot"></div> Chișinău, Moldova</div>
+      <h1>Curățenie profesională<br>de încredere</h1>
+      <p class="hero-desc">Găsește specialiști verificați, compară prețuri și recenzii, rezervă instant. Totul în mai puțin de un minut.</p>
+      <div class="search-row">
+        <div class="search-field"><span>Selectează serviciu</span><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M4 6l3 3 3-3" stroke="#aaa6ba" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+        <div class="search-field"><span>Selectează cartier</span><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M4 6l3 3 3-3" stroke="#aaa6ba" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+        <div class="search-btn">Caută</div>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Top rating</div>
+      <div class="mini-provider">
+        <div class="mini-avatar" style="background:#ece8f4; color:#7b8cc4;">DC</div>
+        <div style="flex:1;"><div class="mini-name">Diamond Cleaning</div><div class="mini-rating">★ 4.9 (85)</div></div>
+        <span class="mini-price">55</span>
+      </div>
+      <div class="mini-provider">
+        <div class="mini-avatar" style="background:#e8ecf4; color:#6a7ab0;">PC</div>
+        <div style="flex:1;"><div class="mini-name">ProCurat</div><div class="mini-rating">★ 4.9 (62)</div></div>
+        <span class="mini-price">50</span>
+      </div>
+      <div class="mini-provider">
+        <div class="mini-avatar" style="background:#e8f0ec; color:#5a8a64;">CP</div>
+        <div style="flex:1;"><div class="mini-name">Cristal Plus</div><div class="mini-rating">★ 4.8 (47)</div></div>
+        <span class="mini-price">35</span>
+      </div>
+      <div class="mini-provider" style="margin-bottom:0;">
+        <div class="mini-avatar" style="background:#f0e8e8; color:#a06a6a;">EC</div>
+        <div style="flex:1;"><div class="mini-name">EcoClean Moldova</div><div class="mini-rating">★ 4.7 (39)</div></div>
+        <span class="mini-price">45</span>
+      </div>
+      <div class="sidebar-link">Vezi toți specialiștii →</div>
+    </div>
+  </div>
+
+  <div class="services-section">
+    <div class="section-label">Servicii populare</div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 16V8l6-5 6 5v8a1 1 0 01-1 1H5a1 1 0 01-1-1z" stroke="#7b8cc4" stroke-width="1.3"/></svg></div>
+        <div class="service-name">Generală</div>
+        <div class="service-price">de la 33 lei/m²</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M5 8l5-5 5 5" stroke="#7b8cc4" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="service-name">Profundă</div>
+        <div class="service-price">de la 35 lei/m²</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="4" width="12" height="12" rx="1" stroke="#7b8cc4" stroke-width="1.3"/><line x1="10" y1="4" x2="10" y2="16" stroke="#7b8cc4" stroke-width="1"/><line x1="4" y1="10" x2="16" y2="10" stroke="#7b8cc4" stroke-width="1"/></svg></div>
+        <div class="service-name">Geamuri</div>
+        <div class="service-price">50 lei/geam</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 15V8l5-4 5 4v7" stroke="#7b8cc4" stroke-width="1.3"/><rect x="8" y="11" width="4" height="4" stroke="#7b8cc4" stroke-width="1.3"/></svg></div>
+        <div class="service-name">La mutare</div>
+        <div class="service-price">de la 40 lei/m²</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="steps-row">
+    <div class="step"><div class="step-num">1</div><div><div class="step-title">Caută</div><div class="step-desc">Alege serviciul și cartierul tău</div></div></div>
+    <div class="step-divider"></div>
+    <div class="step"><div class="step-num">2</div><div><div class="step-title">Compară</div><div class="step-desc">Prețuri, recenzii, disponibilitate</div></div></div>
+    <div class="step-divider"></div>
+    <div class="step"><div class="step-num">3</div><div><div class="step-title">Rezervă</div><div class="step-desc">Confirmă în câteva secunde</div></div></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-value">8+</div><div class="stat-label">Specialiști verificați</div></div>
+    <div class="stat"><div class="stat-value">4.7</div><div class="stat-label">Rating mediu</div></div>
+    <div class="stat"><div class="stat-value">332</div><div class="stat-label">Recenzii verificate</div></div>
+  </div>
+
+  <div class="footer">
+    <span>© 2026 Forever Clean · Chișinău, Moldova</span>
+    <div class="footer-links"><span>Termeni</span><span>Confidențialitate</span><span>Contact</span></div>
+  </div>
+
+</div>
+</body>
+</html>

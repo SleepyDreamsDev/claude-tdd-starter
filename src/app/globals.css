@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #7b8cc4;
+  --color-primary-hover: #6a7ab0;
+  --color-primary-light: #ece8f4;
+  --color-primary-subtle: #f0eef4;
+  --color-bg-page: #f0eef4;
+  --color-bg-surface: #faf9fc;
+  --color-bg-card: #ffffff;
+  --color-bg-elevated: #ece8f4;
+  --color-text-heading: #2d2b40;
+  --color-text-body: #6a6680;
+  --color-text-secondary: #8884a0;
+  --color-text-muted: #aaa6ba;
+  --color-text-accent: #5a5680;
+  --color-border-default: #d4d0de;
+  --color-border-light: #e4e0ec;
+  --color-rating: #c4a84e;
+  --color-success: #5a8a64;
+  --color-success-bg: #e8f0ec;
+  --color-warning: #8a7230;
+  --color-warning-bg: #f5eeda;
+  --color-error: #a06a6a;
+  --color-error-bg: #f0e8e8;
+  --font-heading: Georgia, 'Times New Roman', serif;
+  --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-default: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+}
+
+/* shadcn/ui CSS variable overrides — map to Lavender Mist tokens */
+:root {
+  --background: #faf9fc;
+  --foreground: #2d2b40;
+  --card: #ffffff;
+  --card-foreground: #2d2b40;
+  --popover: #ffffff;
+  --popover-foreground: #2d2b40;
+  --primary: #7b8cc4;
+  --primary-foreground: #ffffff;
+  --secondary: #f0eef4;
+  --secondary-foreground: #2d2b40;
+  --muted: #f0eef4;
+  --muted-foreground: #8884a0;
+  --accent: #ece8f4;
+  --accent-foreground: #2d2b40;
+  --destructive: #a06a6a;
+  --border: #d4d0de;
+  --input: #d4d0de;
+  --ring: #7b8cc4;
+  --radius: 8px;
+}
+
+body {
+  background: var(--color-bg-page);
+  color: var(--color-text-body);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  color: var(--color-text-heading);
+}
