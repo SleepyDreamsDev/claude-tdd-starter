@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forever Clean — Booking Success (375px)</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #e8e6ee; display: flex; justify-content: center; padding: 32px 16px; min-height: 100vh; }
+.phone { width: 375px; background: #faf9fc; border-radius: 28px; overflow: hidden; box-shadow: 0 4px 24px rgba(45,43,64,0.12); }
+.status-bar { height: 28px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #8884a0; }
+.content { padding: 60px 24px; text-align: center; }
+.check-circle { width: 64px; height: 64px; border-radius: 50%; background: #ece8f4; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; }
+h2 { font-family: Georgia, 'Times New Roman', serif; font-size: 22px; font-weight: 400; color: #2d2b40; margin-bottom: 8px; }
+.subtitle { font-size: 14px; color: #8884a0; line-height: 1.6; margin-bottom: 24px; }
+.details-card { background: #fff; border: 0.5px solid #d4d0de; border-radius: 12px; padding: 16px; text-align: left; margin-bottom: 16px; }
+.details-label { font-size: 11px; color: #8884a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.detail-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+.detail-row:last-child { margin-bottom: 0; }
+.detail-key { color: #8884a0; }
+.detail-value { color: #2d2b40; }
+.detail-value.primary { color: #7b8cc4; font-weight: 500; }
+.detail-value.mono { font-family: 'Segoe UI', monospace; color: #7b8cc4; font-weight: 500; }
+.status-badge { font-size: 11px; padding: 2px 10px; background: #f5eeda; color: #8a7230; border-radius: 6px; font-weight: 500; }
+.provider-row { background: #fff; border: 0.5px solid #d4d0de; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+.provider-avatar { width: 36px; height: 36px; border-radius: 8px; background: #ece8f4; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #7b8cc4; font-weight: 500; }
+.provider-info { text-align: left; flex: 1; }
+.provider-name { font-size: 13px; font-weight: 500; color: #2d2b40; }
+.provider-phone { font-size: 12px; color: #8884a0; }
+.call-btn { width: 36px; height: 36px; border-radius: 8px; border: 0.5px solid #d4d0de; display: flex; align-items: center; justify-content: center; }
+.btn-primary { background: #7b8cc4; color: #fff; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 500; text-align: center; cursor: pointer; margin-bottom: 10px; }
+.btn-outline { border: 0.5px solid #d4d0de; border-radius: 10px; padding: 14px; font-size: 14px; color: #6a6680; text-align: center; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status-bar">9:45</div>
+  <div class="content">
+    <div class="check-circle">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M7 14l5 5 9-10" stroke="#7b8cc4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2>Rezervare trimisă!</h2>
+    <p class="subtitle">Furnizorul vă va contacta în cel mai scurt timp pentru confirmare.</p>
+
+    <div class="details-card">
+      <div class="details-label">Detalii rezervare</div>
+      <div class="detail-row">
+        <span class="detail-key">Referință</span>
+        <span class="detail-value mono">FC-2026-00042</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Specialist</span>
+        <span class="detail-value">Diamond Cleaning</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Data</span>
+        <span class="detail-value">14 apr 2026, dimineața</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Total</span>
+        <span class="detail-value primary">3,614 lei</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Status</span>
+        <span class="status-badge">În așteptare</span>
+      </div>
+    </div>
+
+    <div class="provider-row">
+      <div class="provider-avatar">DC</div>
+      <div class="provider-info">
+        <div class="provider-name">Diamond Cleaning</div>
+        <div class="provider-phone">+373 69 123 456</div>
+      </div>
+      <div class="call-btn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 3C3.9 3 3 3.9 3 5c0 4.4 3.6 8 8 8 1.1 0 2-.9 2-2l-2.4-1-1.1 1.3C7.7 10.3 5.7 8.3 4.7 6.5L6 5.4 5 3z" stroke="#7b8cc4" stroke-width="1.3"/></svg>
+      </div>
+    </div>
+
+    <div class="btn-primary">Înapoi la pagina principală</div>
+    <div class="btn-outline">Vezi rezervările mele</div>
+  </div>
+</div>
+</body>
+</html>

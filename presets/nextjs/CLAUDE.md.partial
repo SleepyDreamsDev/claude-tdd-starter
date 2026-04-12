@@ -1,7 +1,7 @@
 ## Tech Stack (nextjs)
 
 - Next.js 15 (App Router) + TypeScript strict
-- Tailwind CSS + shadcn/ui
+- Tailwind CSS v4 (CSS-first) + shadcn/ui
 - Vitest + React Testing Library for tests
 - Playwright for E2E (optional)
 - pnpm for package management
@@ -10,11 +10,13 @@
 
 ```
 src/
-  app/           # Next.js App Router pages and layouts
-  server/        # tRPC routers, database queries, business logic
-  components/    # React components (shadcn/ui based)
-  lib/           # Shared utilities, schema, auth config
-  __tests__/     # Test files
+  app/
+    [locale]/    # i18n routing (ro | ru) — ALL pages live here
+    layout.tsx   # Root layout
+    globals.css  # Tailwind v4 @theme + CSS custom properties
+  components/    # React components (shadcn/ui based), organized by domain
+  lib/           # Shared utilities, types, constants, i18n
+  hooks/         # Custom React hooks
 ```
 
 ## Additional Conventions

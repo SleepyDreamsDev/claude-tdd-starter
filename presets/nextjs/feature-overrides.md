@@ -7,8 +7,9 @@ All code lives under `src/`.
    |---|---|---|
    | page, layout, route | `src/app/` | `*.test.tsx` in `__tests__/` |
    | component, UI, form | `src/components/` | `*.test.tsx` in `__tests__/` |
-   | API, router, query, mutation | `src/server/` | `*.test.ts` in `__tests__/` |
-   | util, helper, schema, validation | `src/lib/` | `*.test.ts` in `__tests__/` |
+   | util, helper, types, pricing | `src/lib/` | `*.test.ts` in `__tests__/` |
+   | i18n, dictionary, locale | `src/lib/i18n/` | `*.test.ts` in `__tests__/` |
+   | hook, use- prefix | `src/hooks/` | `*.test.ts` in `__tests__/` |
 
 ### Test Patterns
 
@@ -48,7 +49,7 @@ No specialist agents — execute RED+GREEN inline.
 
 ### Platform Security Checks
 
-- **Auth**: Server Actions and API routes check session before mutations
-- **Data access**: All DB queries filter by authenticated user
-- **React**: No unsafe HTML rendering
-- **Server Actions**: Validate input with Zod before processing
+- **React**: No raw HTML injection — use JSX text nodes for all dynamic content
+- **Input validation**: Validate booking form data before processing
+- **i18n completeness**: All translation keys must be present in both `ro.json` and `ru.json`
+- **POC data layer**: No real user data stored — mock data only, no persistence
