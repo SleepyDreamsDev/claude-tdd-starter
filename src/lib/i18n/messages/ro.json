@@ -105,6 +105,21 @@
     "footer_copyright": "© 2026 Forever Clean",
     "footer_contact": "Contact: +373 60 000 000"
   },
+  "profile": {
+    "services_and_prices": "Servicii și prețuri",
+    "coverage_areas": "Cartiere deservite",
+    "availability": "Program de lucru",
+    "recent_reviews": "Recenzii recente",
+    "book_cta": "Rezervă acum · de la {{price}} lei/m²",
+    "no_availability": "Fără program disponibil",
+    "day_mon": "Lun",
+    "day_tue": "Mar",
+    "day_wed": "Mie",
+    "day_thu": "Joi",
+    "day_fri": "Vin",
+    "day_sat": "Sâm",
+    "day_sun": "Dum"
+  },
   "neighborhoods": {
     "centru": "Centru",
     "botanica": "Botanica",

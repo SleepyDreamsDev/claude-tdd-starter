@@ -105,6 +105,21 @@
     "footer_copyright": "© 2026 Forever Clean",
     "footer_contact": "Контакт: +373 60 000 000"
   },
+  "profile": {
+    "services_and_prices": "Услуги и цены",
+    "coverage_areas": "Обслуживаемые районы",
+    "availability": "График работы",
+    "recent_reviews": "Последние отзывы",
+    "book_cta": "Забронировать · от {{price}} лей/м²",
+    "no_availability": "Нет расписания",
+    "day_mon": "Пнд",
+    "day_tue": "Вт",
+    "day_wed": "Ср",
+    "day_thu": "Чт",
+    "day_fri": "Пт",
+    "day_sat": "Сб",
+    "day_sun": "Вс"
+  },
   "neighborhoods": {
     "centru": "Центр",
     "botanica": "Ботаника",
