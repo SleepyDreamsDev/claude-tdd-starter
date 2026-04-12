@@ -7,9 +7,11 @@ import {
   getFeaturedProviders,
   getServiceTypes,
   getNeighborhoods,
+  getServiceTypesWithMinPrice,
 } from "@/lib/mock-data";
 import { ProviderCard } from "@/components/providers/provider-card";
 import { SearchForm } from "@/components/home/search-form";
+import { PopularServices } from "@/components/home/popular-services";
 
 const HOW_IT_WORKS_ICONS = [Search, GitCompareArrows, CalendarCheck];
 
@@ -26,6 +28,7 @@ export default async function LocalePage({
 
   const dict = await getDictionary(locale);
   const featured = getFeaturedProviders();
+  const popularServices = getServiceTypesWithMinPrice();
   const serviceTypes = getServiceTypes().map((s) => ({
     value: s.value,
     label: s.label[locale],
@@ -122,8 +125,18 @@ export default async function LocalePage({
         </div>
       </section>
 
+      {/* Popular services */}
+      <PopularServices
+        services={popularServices}
+        labels={{
+          title: dict.home.popular_services_title,
+          starting_from: dict.home.starting_from,
+        }}
+        locale={locale}
+      />
+
       {/* How it works */}
-      <section className="px-5 pb-6 lg:px-10 lg:pb-8">
+      <section id="how-it-works" className="px-5 pb-6 lg:px-10 lg:pb-8">
         <div className="rounded-xl border-[0.5px] border-border-default bg-bg-card p-4 lg:flex lg:items-center lg:gap-5 lg:rounded-none lg:border-x-0 lg:border-b-0 lg:border-t-[0.5px] lg:border-border-light lg:bg-transparent lg:p-6">
           <h2 className="mb-3 font-heading text-[15px] text-text-heading lg:hidden">
             {dict.home.how_it_works}

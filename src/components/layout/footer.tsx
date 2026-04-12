@@ -5,8 +5,12 @@ import type { Locale } from "@/lib/i18n/config";
 export type FooterLabels = {
   home: string;
   providers: string;
+  how_it_works: string;
+  about: string;
+  terms: string;
+  privacy: string;
+  contact: string;
   footer_copyright: string;
-  footer_contact: string;
 };
 
 export function Footer({
@@ -17,32 +21,78 @@ export function Footer({
   currentLocale: Locale;
 }) {
   return (
-    <footer className="bg-bg-page border-t-[0.5px] border-border-default px-4 md:px-8 py-4">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex gap-5">
+    <footer className="border-t-[0.5px] border-border-default bg-bg-page px-4 py-6 md:px-8">
+      <div className="flex flex-col gap-6 md:flex-row md:justify-between">
+        {/* Col 1: Logo + copyright */}
+        <div className="flex flex-col gap-2">
           <Link
             href={`/${currentLocale}`}
-            className="text-[12px] text-text-secondary hover:text-text-body transition-colors duration-150"
+            className="flex items-center gap-1.5"
+          >
+            <div
+              className="h-5 w-[5px] rounded-sm bg-primary"
+              aria-hidden="true"
+            />
+            <span className="font-heading font-medium text-[15px] text-text-heading">
+              Forever Clean
+            </span>
+          </Link>
+          <span className="text-[12px] text-text-muted">
+            {labels.footer_copyright}
+          </span>
+        </div>
+
+        {/* Col 2: Nav links */}
+        <div className="flex flex-col gap-1.5">
+          <Link
+            href={`/${currentLocale}`}
+            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
           >
             {labels.home}
           </Link>
           <Link
             href={`/${currentLocale}/providers`}
-            className="text-[12px] text-text-secondary hover:text-text-body transition-colors duration-150"
+            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
           >
             {labels.providers}
           </Link>
+          <Link
+            href={`/${currentLocale}#how-it-works`}
+            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+          >
+            {labels.how_it_works}
+          </Link>
+          <Link
+            href="#"
+            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+          >
+            {labels.about}
+          </Link>
         </div>
 
-        <LocaleSwitcher currentLocale={currentLocale} />
-
-        <div className="flex flex-col gap-0.5 md:text-right">
-          <span className="text-[12px] text-text-secondary">
-            {labels.footer_copyright}
-          </span>
-          <span className="text-[12px] text-text-muted">
-            {labels.footer_contact}
-          </span>
+        {/* Col 3: Legal links + locale switcher */}
+        <div className="flex flex-col gap-1.5">
+          <Link
+            href="#"
+            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+          >
+            {labels.terms}
+          </Link>
+          <Link
+            href="#"
+            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+          >
+            {labels.privacy}
+          </Link>
+          <Link
+            href="#"
+            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+          >
+            {labels.contact}
+          </Link>
+          <div className="mt-2">
+            <LocaleSwitcher currentLocale={currentLocale} />
+          </div>
         </div>
       </div>
     </footer>

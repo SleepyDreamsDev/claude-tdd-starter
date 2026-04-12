@@ -837,6 +837,26 @@ export function getServiceTypes(): {
   return SERVICE_TYPES;
 }
 
+export function getServiceTypesWithMinPrice(): {
+  value: import("@/lib/types").ServiceType;
+  label: { ro: string; ru: string };
+  icon: string;
+  minPricePerSqm: number;
+}[] {
+  const providers = getProviders();
+  return SERVICE_TYPES.map((st) => {
+    const prices = providers
+      .filter((p) => p.services.includes(st.value))
+      .map((p) => p.pricePerSqm);
+    return {
+      ...st,
+      minPricePerSqm: prices.length > 0 ? Math.min(...prices) : 0,
+    };
+  })
+    .filter((st) => st.minPricePerSqm > 0)
+    .slice(0, 4);
+}
+
 export function getAddOns(): AddOn[] {
   return ADD_ONS;
 }

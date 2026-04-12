@@ -31,7 +31,9 @@
     "step3_desc": "Подтвердите бронирование за несколько секунд",
     "featured_title": "Лучшие специалисты",
     "search_button": "Найти специалистов",
-    "featured_view_all": "Смотреть все"
+    "featured_view_all": "Смотреть все",
+    "popular_services_title": "Популярные услуги",
+    "starting_from": "от {{price}} лей/м²"
   },
   "providers": {
     "title": "Услуги уборки",
@@ -103,7 +105,12 @@
     "bookings_tab": "Заявки",
     "account_tab": "Аккаунт",
     "footer_copyright": "© 2026 Forever Clean",
-    "footer_contact": "Контакт: +373 60 000 000"
+    "footer_contact": "Контакт: +373 60 000 000",
+    "how_it_works": "Как это работает",
+    "about": "О нас",
+    "terms": "Условия использования",
+    "privacy": "Конфиденциальность",
+    "contact": "Контакт"
   },
   "profile": {
     "services_and_prices": "Услуги и цены",

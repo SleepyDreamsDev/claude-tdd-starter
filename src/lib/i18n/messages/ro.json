@@ -31,7 +31,9 @@
     "step3_desc": "Confirmă rezervarea în câteva secunde",
     "featured_title": "Specialiști de top",
     "search_button": "Caută specialiști",
-    "featured_view_all": "Vezi toți"
+    "featured_view_all": "Vezi toți",
+    "popular_services_title": "Servicii populare",
+    "starting_from": "de la {{price}} lei/m²"
   },
   "providers": {
     "title": "Servicii de curățenie",
@@ -103,7 +105,12 @@
     "bookings_tab": "Rezervări",
     "account_tab": "Cont",
     "footer_copyright": "© 2026 Forever Clean",
-    "footer_contact": "Contact: +373 60 000 000"
+    "footer_contact": "Contact: +373 60 000 000",
+    "how_it_works": "Cum funcționează",
+    "about": "Despre noi",
+    "terms": "Termeni și condiții",
+    "privacy": "Confidențialitate",
+    "contact": "Contact"
   },
   "profile": {
     "services_and_prices": "Servicii și prețuri",

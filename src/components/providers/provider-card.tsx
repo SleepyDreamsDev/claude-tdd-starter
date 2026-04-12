@@ -47,7 +47,7 @@ export function ProviderCard({
       <Link
         href={`/${locale}/providers/${provider.slug}`}
         className={cn(
-          "flex flex-col overflow-hidden rounded-xl border-[0.5px] border-border-default bg-bg-card",
+          "flex flex-col overflow-hidden rounded-xl border-[0.5px] border-border-default bg-bg-card transition-all duration-150 hover:border-border-hover hover:shadow-sm",
           className,
         )}
       >
@@ -151,7 +151,7 @@ export function ProviderCard({
     <Link
       href={`/${locale}/providers/${provider.slug}`}
       className={cn(
-        "flex gap-3 rounded-xl border-[0.5px] border-border-default bg-bg-card p-3.5",
+        "flex gap-3 rounded-xl border-[0.5px] border-border-default bg-bg-card p-3.5 transition-all duration-150 hover:border-border-hover hover:shadow-sm",
         className,
       )}
     >

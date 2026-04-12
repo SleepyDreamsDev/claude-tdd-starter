@@ -14,6 +14,8 @@ vi.mock("next/navigation", () => ({
 const headerLabels = {
   home: "Acasă",
   providers: "Specialiști",
+  how_it_works: "Cum funcționează",
+  about: "Despre noi",
   book_now: "Rezervă acum",
   open_menu: "Deschide meniu",
   close_menu: "Închide meniu",
@@ -22,8 +24,12 @@ const headerLabels = {
 const footerLabels = {
   home: "Acasă",
   providers: "Specialiști",
+  how_it_works: "Cum funcționează",
+  about: "Despre noi",
+  terms: "Termeni și condiții",
+  privacy: "Confidențialitate",
+  contact: "Contact",
   footer_copyright: "© 2026 Forever Clean",
-  footer_contact: "Contact: +373 60 000 000",
 };
 
 const mobileNavLabels = {
@@ -86,9 +92,10 @@ describe("Footer", () => {
     expect(screen.getByText("© 2026 Forever Clean")).toBeInTheDocument();
   });
 
-  it("renders contact placeholder", () => {
+  it("renders legal links including contact", () => {
     render(<Footer labels={footerLabels} currentLocale="ro" />);
-    expect(screen.getByText("Contact: +373 60 000 000")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /contact/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /termeni/i })).toBeInTheDocument();
   });
 
   it("renders locale switcher", () => {

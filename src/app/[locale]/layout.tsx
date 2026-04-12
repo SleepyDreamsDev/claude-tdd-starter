@@ -28,6 +28,8 @@ export default async function LocaleLayout({
   const headerLabels = {
     home: dict.nav.home,
     providers: dict.nav.providers,
+    how_it_works: dict.nav.how_it_works,
+    about: dict.nav.about,
     book_now: dict.common.book_now,
     open_menu: dict.nav.open_menu,
     close_menu: dict.nav.close_menu,
@@ -36,8 +38,12 @@ export default async function LocaleLayout({
   const footerLabels = {
     home: dict.nav.home,
     providers: dict.nav.providers,
+    how_it_works: dict.nav.how_it_works,
+    about: dict.nav.about,
+    terms: dict.nav.terms,
+    privacy: dict.nav.privacy,
+    contact: dict.nav.contact,
     footer_copyright: dict.nav.footer_copyright,
-    footer_contact: dict.nav.footer_contact,
   };
 
   const mobileNavLabels = {
