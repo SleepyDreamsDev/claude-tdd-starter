@@ -13,6 +13,7 @@
     "cancel": "Anulează",
     "close": "Închide",
     "reviews": "recenzii",
+    "rating_aria": "{{rating}} din 5 stele",
     "per_sqm": "lei/m²",
     "mdl": "lei"
   },
@@ -28,7 +29,9 @@
     "step2_desc": "Vezi prețuri, recenzii și disponibilitate",
     "step3_title": "Rezervă",
     "step3_desc": "Confirmă rezervarea în câteva secunde",
-    "featured_title": "Specialiști de top"
+    "featured_title": "Specialiști de top",
+    "search_button": "Caută specialiști",
+    "featured_view_all": "Vezi toți"
   },
   "providers": {
     "title": "Servicii de curățenie",

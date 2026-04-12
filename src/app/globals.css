@@ -17,14 +17,15 @@
   --color-border-default: #d4d0de;
   --color-border-light: #e4e0ec;
   --color-rating: #c4a84e;
+  --color-rating-empty: #e4e0ec;
   --color-success: #5a8a64;
   --color-success-bg: #e8f0ec;
   --color-warning: #8a7230;
   --color-warning-bg: #f5eeda;
   --color-error: #a06a6a;
   --color-error-bg: #f0e8e8;
-  --font-heading: Georgia, 'Times New Roman', serif;
-  --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-heading: Georgia, "Times New Roman", serif;
+  --font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-default: 8px;
@@ -62,7 +63,10 @@ body {
   font-family: var(--font-body);
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-heading);
   color: var(--color-text-heading);
 }
