@@ -26,7 +26,7 @@ export function SortSelect({ value, onChange, labels }: SortSelectProps) {
       <SelectTrigger className="w-[180px] border-[0.5px] border-border-default bg-bg-card text-sm">
         <SelectValue placeholder={labels.sort_by} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position="popper">
         <SelectItem value="rating">{labels.sort_rating}</SelectItem>
         <SelectItem value="price_asc">{labels.sort_price_asc}</SelectItem>
         <SelectItem value="price_desc">{labels.sort_price_desc}</SelectItem>

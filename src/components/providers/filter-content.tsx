@@ -102,7 +102,7 @@ export function FilterContent({
           <SelectTrigger className="w-full">
             <SelectValue placeholder={labels.all_areas} />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper">
             <SelectItem value="__all__">{labels.all_areas}</SelectItem>
             {neighborhoods.map((n) => (
               <SelectItem key={n.value} value={n.value}>

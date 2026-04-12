@@ -47,7 +47,7 @@ export function SearchForm({
         <SelectTrigger className="border-[0.5px] border-border-default bg-bg-card lg:flex-1">
           <SelectValue placeholder={labels.search_service} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent position="popper">
           {serviceTypes.map((s) => (
             <SelectItem key={s.value} value={s.value}>
               {s.label}
@@ -60,7 +60,7 @@ export function SearchForm({
         <SelectTrigger className="border-[0.5px] border-border-default bg-bg-card lg:flex-1">
           <SelectValue placeholder={labels.search_area} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent position="popper">
           {neighborhoods.map((n) => (
             <SelectItem key={n.value} value={n.value}>
               {n.label}
