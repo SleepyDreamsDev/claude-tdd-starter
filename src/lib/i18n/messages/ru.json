@@ -44,7 +44,13 @@
     "sort_rating": "Рейтинг",
     "sort_price_asc": "Цена: по возрастанию",
     "sort_price_desc": "Цена: по убыванию",
-    "sort_reviews": "Кол-во отзывов"
+    "sort_reviews": "Кол-во отзывов",
+    "reset_filters": "Сбросить фильтры",
+    "apply_filters": "Применить фильтры",
+    "show_results": "Показать {{count}} результатов",
+    "service_type": "Тип услуги",
+    "neighborhood": "Район",
+    "no_results_hint": "Попробуйте расширить фильтры"
   },
   "booking": {
     "title": "Бронирование",

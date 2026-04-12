@@ -13,11 +13,13 @@ interface ProviderCardProps {
     reviews: string;
     rating_aria?: string;
   };
-  variant?: "list" | "mini";
+  variant?: "list" | "mini" | "grid";
+  areas?: string[];
   className?: string;
 }
 
 const MAX_VISIBLE_TAGS = 2;
+const MAX_VISIBLE_GRID_TAGS = 3;
 
 function getServiceLabel(service: string, locale: Locale): string {
   const found = SERVICE_TYPES.find((s) => s.value === service);
@@ -29,6 +31,7 @@ export function ProviderCard({
   locale,
   labels,
   variant = "list",
+  areas,
   className,
 }: ProviderCardProps) {
   const initials = getInitials(provider.companyName);
@@ -37,6 +40,78 @@ export function ProviderCard({
   const ratingAriaLabel = labels.rating_aria
     ? labels.rating_aria.replace("{{rating}}", String(provider.ratingAvg))
     : undefined;
+
+  if (variant === "grid") {
+    const gridOverflowCount = provider.services.length - MAX_VISIBLE_GRID_TAGS;
+    return (
+      <Link
+        href={`/${locale}/providers/${provider.slug}`}
+        className={cn(
+          "flex flex-col overflow-hidden rounded-xl border-[0.5px] border-border-default bg-bg-card",
+          className,
+        )}
+      >
+        <div
+          className={cn(
+            "relative flex h-[100px] items-center justify-center",
+            avatarColor.bg,
+          )}
+        >
+          <span className={cn("text-2xl font-medium", avatarColor.text)}>
+            {initials}
+          </span>
+          {provider.verified && (
+            <span className="absolute right-2 top-2 rounded-sm bg-white/80 px-1.5 py-0.5 text-[10px] text-text-accent">
+              {labels.verified}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-col gap-1.5 p-3.5">
+          <div className="flex items-baseline justify-between">
+            <span className="flex-1 text-sm font-medium text-text-heading">
+              {provider.companyName}
+            </span>
+            <span className="shrink-0 text-sm font-medium text-primary">
+              {provider.pricePerSqm}{" "}
+              <span className="text-[11px] text-text-muted">
+                {labels.per_sqm}
+              </span>
+            </span>
+          </div>
+          <StarRating
+            rating={provider.ratingAvg}
+            count={provider.reviewCount}
+            countLabel={labels.reviews}
+            ariaLabel={ratingAriaLabel}
+            size="sm"
+          />
+          <div className="flex flex-wrap gap-1">
+            {provider.services
+              .slice(0, MAX_VISIBLE_GRID_TAGS)
+              .map((service) => (
+                <span
+                  key={service}
+                  data-testid="grid-service-tag"
+                  className="rounded-sm bg-primary-subtle px-1.5 py-0.5 text-[11px] text-text-body"
+                >
+                  {getServiceLabel(service, locale)}
+                </span>
+              ))}
+            {gridOverflowCount > 0 && (
+              <span className="rounded-sm bg-primary-subtle px-1.5 py-0.5 text-[11px] text-text-body">
+                +{gridOverflowCount}
+              </span>
+            )}
+          </div>
+          {areas && areas.length > 0 && (
+            <span className="text-[11px] text-text-secondary">
+              {areas.slice(0, 3).join(" · ")}
+            </span>
+          )}
+        </div>
+      </Link>
+    );
+  }
 
   if (variant === "mini") {
     return (

@@ -116,3 +116,108 @@ describe("ProviderCard", () => {
     expect(screen.queryAllByTestId("service-tag")).toHaveLength(0);
   });
 });
+
+describe("ProviderCard (grid variant)", () => {
+  it("renders 100px colored header with company initials", () => {
+    render(
+      <ProviderCard
+        provider={baseProvider}
+        locale="ro"
+        labels={labels}
+        variant="grid"
+      />,
+    );
+    expect(screen.getByText("DC")).toBeInTheDocument();
+  });
+
+  it("shows verified badge when provider.verified is true", () => {
+    render(
+      <ProviderCard
+        provider={baseProvider}
+        locale="ro"
+        labels={labels}
+        variant="grid"
+      />,
+    );
+    expect(screen.getByText("Verificat")).toBeInTheDocument();
+  });
+
+  it("does not show badge when provider.verified is false", () => {
+    const unverified = { ...baseProvider, verified: false };
+    render(
+      <ProviderCard
+        provider={unverified}
+        locale="ro"
+        labels={labels}
+        variant="grid"
+      />,
+    );
+    expect(screen.queryByText("Verificat")).not.toBeInTheDocument();
+  });
+
+  it("shows company name in card body", () => {
+    render(
+      <ProviderCard
+        provider={baseProvider}
+        locale="ro"
+        labels={labels}
+        variant="grid"
+      />,
+    );
+    expect(screen.getByText("Diamond Cleaning")).toBeInTheDocument();
+  });
+
+  it("shows price with per_sqm label", () => {
+    render(
+      <ProviderCard
+        provider={baseProvider}
+        locale="ro"
+        labels={labels}
+        variant="grid"
+      />,
+    );
+    expect(screen.getByText("55")).toBeInTheDocument();
+    expect(screen.getByText("lei/m²")).toBeInTheDocument();
+  });
+
+  it("shows up to 3 service tags with overflow for more", () => {
+    render(
+      <ProviderCard
+        provider={baseProvider}
+        locale="ro"
+        labels={labels}
+        variant="grid"
+      />,
+    );
+    // 8 services, max 3 shown + "+5"
+    const tags = screen.getAllByTestId("grid-service-tag");
+    expect(tags).toHaveLength(3);
+    expect(screen.getByText("+5")).toBeInTheDocument();
+  });
+
+  it("shows areas joined by ' · ' when areas prop provided", () => {
+    render(
+      <ProviderCard
+        provider={baseProvider}
+        locale="ro"
+        labels={labels}
+        variant="grid"
+        areas={["Centru", "Botanica"]}
+      />,
+    );
+    expect(screen.getByText("Centru · Botanica")).toBeInTheDocument();
+  });
+
+  it("links to the provider profile page", () => {
+    render(
+      <ProviderCard
+        provider={baseProvider}
+        locale="ro"
+        labels={labels}
+        variant="grid"
+      />,
+    );
+    const link = screen.getByRole("link");
+    expect(link).toHaveAttribute("href", "/ro/providers/diamond-cleaning");
+  });
+});

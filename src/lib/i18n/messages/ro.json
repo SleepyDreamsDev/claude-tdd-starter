@@ -44,7 +44,13 @@
     "sort_rating": "Rating",
     "sort_price_asc": "Preț: mic → mare",
     "sort_price_desc": "Preț: mare → mic",
-    "sort_reviews": "Nr. recenzii"
+    "sort_reviews": "Nr. recenzii",
+    "reset_filters": "Resetează filtrele",
+    "apply_filters": "Aplică filtrele",
+    "show_results": "Arată {{count}} rezultate",
+    "service_type": "Tip serviciu",
+    "neighborhood": "Cartier",
+    "no_results_hint": "Încearcă să extinzi filtrele"
   },
   "booking": {
     "title": "Rezervare",
