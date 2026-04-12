@@ -85,6 +85,17 @@
     "UPHOLSTERY_CLEANING": "Чистка мягкой мебели",
     "MOVE_IN_OUT": "Уборка при переезде"
   },
+  "nav": {
+    "home": "Главная",
+    "providers": "Специалисты",
+    "open_menu": "Открыть меню",
+    "close_menu": "Закрыть меню",
+    "search_tab": "Поиск",
+    "bookings_tab": "Заявки",
+    "account_tab": "Аккаунт",
+    "footer_copyright": "© 2026 Forever Clean",
+    "footer_contact": "Контакт: +373 60 000 000"
+  },
   "neighborhoods": {
     "centru": "Центр",
     "botanica": "Ботаника",

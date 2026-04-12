@@ -85,6 +85,17 @@
     "UPHOLSTERY_CLEANING": "Curățare mobilier moale",
     "MOVE_IN_OUT": "Curățenie la mutare"
   },
+  "nav": {
+    "home": "Acasă",
+    "providers": "Specialiști",
+    "open_menu": "Deschide meniu",
+    "close_menu": "Închide meniu",
+    "search_tab": "Caută",
+    "bookings_tab": "Rezervări",
+    "account_tab": "Cont",
+    "footer_copyright": "© 2026 Forever Clean",
+    "footer_contact": "Contact: +373 60 000 000"
+  },
   "neighborhoods": {
     "centru": "Centru",
     "botanica": "Botanica",
