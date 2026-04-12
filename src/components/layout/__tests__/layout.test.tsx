@@ -98,10 +98,13 @@ describe("Footer", () => {
     expect(screen.getByRole("link", { name: /termeni/i })).toBeInTheDocument();
   });
 
-  it("renders locale switcher", () => {
+  it("renders nav and legal links", () => {
     render(<Footer labels={footerLabels} currentLocale="ro" />);
-    expect(screen.getByText("RO")).toBeInTheDocument();
-    expect(screen.getByText("RU")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /acasă/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /termeni/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /confidențialitate/i }),
+    ).toBeInTheDocument();
   });
 });
 

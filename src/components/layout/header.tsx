@@ -78,7 +78,7 @@ export function Header({
             {/* Desktop CTA */}
             <Link
               href={`/${currentLocale}/providers`}
-              className="hidden items-center rounded-lg bg-primary px-5 py-2 text-[13px] font-medium text-white transition-colors duration-150 hover:bg-primary-hover active:scale-[0.98] md:flex"
+              className="hidden w-[140px] items-center justify-center rounded-lg bg-primary py-2 text-[13px] font-medium text-white transition-colors duration-150 hover:bg-primary-hover active:scale-[0.98] md:flex"
             >
               {labels.book_now}
             </Link>

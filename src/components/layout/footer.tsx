@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import type { Locale } from "@/lib/i18n/config";
 
 export type FooterLabels = {
@@ -22,7 +21,7 @@ export function Footer({
 }) {
   return (
     <footer className="border-t-[0.5px] border-border-default bg-bg-page px-4 py-6 md:px-8">
-      <div className="flex flex-col gap-6 md:flex-row md:justify-between">
+      <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
         {/* Col 1: Logo + copyright */}
         <div className="flex flex-col gap-2">
           <Link
@@ -42,56 +41,56 @@ export function Footer({
           </span>
         </div>
 
-        {/* Col 2: Nav links */}
-        <div className="flex flex-col gap-1.5">
-          <Link
-            href={`/${currentLocale}`}
-            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
-          >
-            {labels.home}
-          </Link>
-          <Link
-            href={`/${currentLocale}/providers`}
-            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
-          >
-            {labels.providers}
-          </Link>
-          <Link
-            href={`/${currentLocale}#how-it-works`}
-            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
-          >
-            {labels.how_it_works}
-          </Link>
-          <Link
-            href="#"
-            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
-          >
-            {labels.about}
-          </Link>
-        </div>
+        {/* Col 2: Nav + Legal side by side */}
+        <div className="flex gap-10">
+          {/* Nav links */}
+          <div className="flex flex-col gap-1.5">
+            <Link
+              href={`/${currentLocale}`}
+              className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+            >
+              {labels.home}
+            </Link>
+            <Link
+              href={`/${currentLocale}/providers`}
+              className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+            >
+              {labels.providers}
+            </Link>
+            <Link
+              href={`/${currentLocale}#how-it-works`}
+              className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+            >
+              {labels.how_it_works}
+            </Link>
+            <Link
+              href="#"
+              className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+            >
+              {labels.about}
+            </Link>
+          </div>
 
-        {/* Col 3: Legal links + locale switcher */}
-        <div className="flex flex-col gap-1.5">
-          <Link
-            href="#"
-            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
-          >
-            {labels.terms}
-          </Link>
-          <Link
-            href="#"
-            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
-          >
-            {labels.privacy}
-          </Link>
-          <Link
-            href="#"
-            className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
-          >
-            {labels.contact}
-          </Link>
-          <div className="mt-2">
-            <LocaleSwitcher currentLocale={currentLocale} />
+          {/* Legal links */}
+          <div className="flex flex-col gap-1.5">
+            <Link
+              href="#"
+              className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+            >
+              {labels.terms}
+            </Link>
+            <Link
+              href="#"
+              className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+            >
+              {labels.privacy}
+            </Link>
+            <Link
+              href="#"
+              className="text-[12px] text-text-secondary transition-colors duration-150 hover:text-text-body"
+            >
+              {labels.contact}
+            </Link>
           </div>
         </div>
       </div>
