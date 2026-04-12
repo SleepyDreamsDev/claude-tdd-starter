@@ -21,7 +21,7 @@ export function Footer({
 }) {
   return (
     <footer className="border-t-[0.5px] border-border-default bg-bg-page px-4 py-6 md:px-8">
-      <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+      <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-center md:gap-16">
         {/* Col 1: Logo + copyright */}
         <div className="flex flex-col gap-2">
           <Link
