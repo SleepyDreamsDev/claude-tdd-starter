@@ -43,7 +43,7 @@ src/hooks/             # use-locale + custom hooks
 
 ## Coding Rules
 
-Full rules: `@.claude/rules/technical.md` · `@.claude/rules/design-system.md`
+Full rules: `@.claude/rules/technical.md`
 
 ### Core principles
 
@@ -143,7 +143,7 @@ Detailed rules live in dedicated files — read them for the full constraints:
 - **TDD workflow:** `.claude/rules/tdd-workflow.md`
 - **Session reporting:** `.claude/rules/session-reporting.md`
 - **Technical conventions:** `.claude/rules/technical.md`
-- **Design system:** `.claude/rules/design-system.md` ← **Read before any UI work**
+- **Design system:** `.claude/rules/design-system.md` ← **Read this file before ANY UI work** (components, pages, styling)
 - **Plugin gate:** `.claude/rules/plugin-gate.md`
 
 ## Available Skills

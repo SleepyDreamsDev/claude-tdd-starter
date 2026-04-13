@@ -1,23 +1,91 @@
 {
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "MultiEdit",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash(*)",
+      "WebSearch",
+      "Edit(/.claude/skills/ui-design/**)",
+      "mcp__plugin_playwright_playwright__browser_close",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "Edit(/.claude/skills/fix/**)",
+      "Edit(/.claude/skills/feature/**)"
+    ],
+    "deny": [
+      "Bash(wget *)",
+      "Bash(curl -o *)",
+      "Bash(curl --output *)",
+      "Bash(ssh *)",
+      "Bash(scp *)",
+      "Bash(rsync *)"
+    ],
+    "additionalDirectories": [
+      "/Users/egorg/Dev/forever-clean/.claude/skills"
+    ]
+  },
   "hooks": {
-    "PostToolUse": [
+    "SessionStart": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "startup|resume|clear",
         "hooks": [
           {
             "type": "command",
-            "command": "FILE=$(jq -r '.tool_input.file_path // empty'); if [[ \"$FILE\" =~ \\.(ts|tsx|js|jsx|json|css|md)$ ]]; then npx prettier --write \"$FILE\" 2>/dev/null; fi; exit 0"
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh\"",
+            "timeout": 5,
+            "statusMessage": "Loading session context..."
           }
         ]
       }
     ],
-    "SessionStart": [
+    "PreToolUse": [
       {
-        "matcher": "compact",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Context reminder after compaction: Primary color is #7b8cc4 (bg-primary). POC phase — no backend, no auth, mock data only (src/lib/mock-data.ts). All UI strings from translation files (ro.json/ru.json). Run pnpm type-check before claiming any task complete.'"
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/block-dangerous.sh\"",
+            "timeout": 10,
+            "statusMessage": "Checking command safety..."
+          }
+        ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/auto-approve-plan.sh\"",
+            "timeout": 5,
+            "statusMessage": "Auto-approving plan..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/format-on-write.sh\"",
+            "timeout": 30,
+            "statusMessage": "Formatting..."
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/typecheck-on-edit.sh\"",
+            "timeout": 60,
+            "statusMessage": "Type-checking..."
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/style-audit.sh\"",
+            "timeout": 10,
+            "statusMessage": "Auditing styles..."
           }
         ]
       }
@@ -28,17 +96,28 @@
         "hooks": [
           {
             "type": "command",
-            "command": "osascript -e 'display notification \"Claude Code needs your attention\" with title \"Forever Clean\"' 2>/dev/null; exit 0"
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/notify.sh\"",
+            "timeout": 10,
+            "statusMessage": "Sending notification..."
           }
         ]
       }
     ],
     "Stop": [
       {
+        "matcher": "",
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "Review what was just completed. Check: (1) Was pnpm type-check run and did it pass? (2) Were relevant tests run and passing? (3) If UI was changed, was the dev server checked or a screenshot taken? (4) Are there any hardcoded hex colors or Romanian/Russian strings that slipped in? If all checks pass, respond {\"ok\": true}. If any check fails or was skipped, respond {\"ok\": false, \"reason\": \"<what still needs to be done>\"} so Claude continues."
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/notify.sh\"",
+            "timeout": 10,
+            "statusMessage": "Wrapping up..."
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-reminder.sh\"",
+            "timeout": 5,
+            "statusMessage": "Stop checklist..."
           }
         ]
       }
