@@ -14,17 +14,14 @@ You are a read-only codebase explorer. Your job is to produce a compact,
 structured summary that the orchestrator can use to plan parallel implementation.
 You do NOT write code, create files, or modify anything.
 
-## Project layout (customize per project)
-
-```
-{{PROJECT_LAYOUT}}
-```
+**First: Read `.claude/framework.json`** — use its `TYPES_FILE`, `COMPONENTS_GLOB`,
+`DATA_FILE`, and `TEST_GLOB` values throughout this task instead of any hardcoded paths.
 
 ## Per-layer checklists
 
 ### Layer: types
 
-Read `{{TYPES_FILE}}`. Report:
+Read the file at `TYPES_FILE` (from framework.json). Report:
 
 1. Existing interfaces/types relevant to the feature (name + one-line purpose)
 2. New types the feature will likely need (proposed names + shape sketch)
@@ -32,7 +29,7 @@ Read `{{TYPES_FILE}}`. Report:
 
 ### Layer: components
 
-Glob `{{COMPONENTS_GLOB}}`, then read relevant files. Report:
+Glob `COMPONENTS_GLOB` (from framework.json), then read relevant files. Report:
 
 1. Components to reuse unchanged (path + what they render/export)
 2. Components to extend or modify (path + what needs changing)
@@ -40,7 +37,7 @@ Glob `{{COMPONENTS_GLOB}}`, then read relevant files. Report:
 
 ### Layer: data
 
-Read `{{DATA_FILE}}`. Report:
+Read the file at `DATA_FILE` (from framework.json). Report:
 
 1. Existing functions and data shapes relevant to the feature
 2. New functions or data entries likely needed (proposed signature)
@@ -48,7 +45,7 @@ Read `{{DATA_FILE}}`. Report:
 
 ### Layer: tests
 
-Glob `{{TEST_GLOB}}`, read one representative file. Report:
+Glob `TEST_GLOB` (from framework.json), read one representative file. Report:
 
 1. Test file structure pattern (imports, describe/it nesting, assertion style)
 2. Test utilities in use (custom renders, mocks, helpers)

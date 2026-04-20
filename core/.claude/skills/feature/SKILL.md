@@ -462,7 +462,7 @@ Classify the changes to choose the reviewer mode:
 Agent(subagent_type: "reviewer",
       prompt: "Light review — CSS/presentation changes only.
         Skip the full test suite (already ran in Step 1).
-        Run only: {{TYPECHECK_CMD}}
+        Run only: <TYPECHECK_CMD from .claude/framework.json>
         Read all changed files and check for:
         - Broken responsive logic (missing breakpoint variants)
         - Inconsistent desktop overrides (e.g., sm: without base)
@@ -477,7 +477,7 @@ Agent(subagent_type: "reviewer",
 ```
 Agent(subagent_type: "reviewer",
       prompt: "Review all changes from this feature delivery.
-        Run typecheck ({{TYPECHECK_CMD}}) and tests ({{TEST_CI_CMD}}).
+        Run typecheck (TYPECHECK_CMD from .claude/framework.json) and tests (TEST_CMD_ALL from .claude/framework.json).
         Check: type safety, input validation, platform security,
         injection risks, data exposure, error handling, data integrity.
         Report findings with severity ratings (CRITICAL/HIGH/MEDIUM/LOW).")

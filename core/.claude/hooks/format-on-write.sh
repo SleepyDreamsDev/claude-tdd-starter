@@ -2,6 +2,10 @@
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 
+# Load project variables from framework.json
+VARS="$CLAUDE_PROJECT_DIR/.claude/framework.json"
+_var() { jq -r ".$1" "$VARS" 2>/dev/null; }
+
 if [ -z "$FILE_PATH" ]; then
   exit 0
 fi
@@ -14,10 +18,10 @@ case "$FILE_PATH" in
 esac
 
 # Only format files that the formatter can handle
-# Default: Prettier for web/TS projects. Overridden by setup.sh for other stacks.
+# Extensions and command come from framework.json (set at project init).
 case "$FILE_PATH" in
-  {{FORMAT_EXTENSIONS_CASE}})
-    {{FORMAT_CMD}} "$FILE_PATH" 2>/dev/null
+  $(_var FORMAT_EXTENSIONS_CASE))
+    $(_var FORMAT_CMD) "$FILE_PATH" 2>/dev/null
     ;;
 esac
 

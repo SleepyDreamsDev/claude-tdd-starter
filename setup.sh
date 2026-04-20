@@ -100,6 +100,7 @@ TEST_DIR=$(jq -r '.variables.TEST_DIR // ""' "$PRESET_DIR/preset.json")
 TEST_GLOB=$(jq -r '.variables.TEST_GLOB // ""' "$PRESET_DIR/preset.json")
 TEST_CMD="$TEST_CMD_PRIMARY"
 TEST_CMD_ALL="$TEST_CI_CMD"
+TYPECHECK_CMD_RAW=$(jq -r '.variables.TYPECHECK_CMD_RAW // .variables.TYPECHECK_CMD' "$PRESET_DIR/preset.json")
 
 # ─── Step 5: Copy core files ────────────────────────────────────────
 
@@ -124,6 +125,29 @@ cp "$CORE_DIR/specs/.gitkeep" "$TARGET_DIR/specs/" 2>/dev/null || true
 
 echo -e "${GREEN}  Core files copied${NC}"
 
+# ─── Step 5.1: Generate framework.json ──────────────────────────────
+
+echo -e "${YELLOW}Generating framework.json...${NC}"
+
+cat > "$TARGET_DIR/.claude/framework.json" << FWJSON
+{
+  "PROJECT_NAME": "$PROJECT_NAME",
+  "PACKAGE_MANAGER": "$PACKAGE_MANAGER",
+  "TYPECHECK_CMD": "$TYPECHECK_CMD",
+  "TYPECHECK_CMD_RAW": "$TYPECHECK_CMD_RAW",
+  "TEST_CMD": "$TEST_CMD",
+  "TEST_CMD_ALL": "$TEST_CMD_ALL",
+  "FORMAT_CMD": "$FORMAT_CMD",
+  "FORMAT_EXTENSIONS_CASE": "$FORMAT_EXTENSIONS",
+  "TYPES_FILE": "$TYPES_FILE",
+  "COMPONENTS_GLOB": "$COMPONENTS_GLOB",
+  "DATA_FILE": "$DATA_FILE",
+  "TEST_GLOB": "$TEST_GLOB"
+}
+FWJSON
+
+echo -e "${GREEN}  framework.json created${NC}"
+
 # ─── Step 5.5: Copy preset agents ───────────────────────────────────
 
 echo -e "${YELLOW}Setting up agents...${NC}"
@@ -136,105 +160,15 @@ if [ "$HAS_AGENTS" = "true" ] && [ -d "$PRESET_DIR/agents" ]; then
   echo -e "${GREEN}  Implementation agents copied from preset${NC}"
 fi
 
-# Process reviewer template — fill placeholders
-REVIEWER_TEMPLATE="$TARGET_DIR/.claude/agents/reviewer.md.template"
-if [ -f "$REVIEWER_TEMPLATE" ]; then
-  REVIEWER_OUT="$TARGET_DIR/.claude/agents/reviewer.md"
-
-  # Build test commands list
-  TEST_COMMANDS_LIST="- Typecheck: \`$TYPECHECK_CMD\`"
-  if [ -n "$TEST_CMD_PRIMARY" ]; then
-    TEST_COMMANDS_LIST="$TEST_COMMANDS_LIST\n- Primary tests: \`$TEST_CMD_PRIMARY\`"
-  fi
-  if [ -n "$TEST_CMD_SECONDARY" ] && [ "$TEST_CMD_SECONDARY" != "" ]; then
-    TEST_COMMANDS_LIST="$TEST_COMMANDS_LIST\n- Secondary tests: \`$TEST_CMD_SECONDARY\`"
-  fi
-
-  # Read platform security checks from preset
-  PLATFORM_CHECKS=""
-  if [ -f "$PRESET_DIR/feature-overrides.md" ]; then
-    PLATFORM_CHECKS=$(sed -n '/### Platform Security Checks/,$ p' "$PRESET_DIR/feature-overrides.md" | tail -n +2)
-  fi
-
-  # Fill template
-  cp "$REVIEWER_TEMPLATE" "$REVIEWER_OUT"
-  sed -i.bak "s|{{TYPECHECK_CMD}}|$TYPECHECK_CMD|g" "$REVIEWER_OUT"
-
-  # Use python for multi-line replacements
-  python3 -c "
-content = open('$REVIEWER_OUT').read()
-content = content.replace('{{TEST_COMMANDS_LIST}}', '''$TEST_COMMANDS_LIST''')
-content = content.replace('{{PLATFORM_SECURITY_CHECKS}}', '''$PLATFORM_CHECKS''')
-open('$REVIEWER_OUT', 'w').write(content)
-" 2>/dev/null || {
-    # Fallback: simple sed
-    sed -i.bak "s|{{TEST_COMMANDS_LIST}}|$TEST_COMMANDS_LIST|g" "$REVIEWER_OUT"
-    sed -i.bak "s|{{PLATFORM_SECURITY_CHECKS}}||g" "$REVIEWER_OUT"
-  }
-
-  rm -f "$REVIEWER_OUT.bak"
-  rm -f "$REVIEWER_TEMPLATE"
-  echo -e "${GREEN}  Reviewer agent configured${NC}"
-else
-  # Remove template if it exists but no agents
-  rm -f "$REVIEWER_TEMPLATE"
-  echo -e "  ${YELLOW}No reviewer template found — skipping${NC}"
-fi
+# Agents (reviewer, discovery-explorer, domain-implementer) now read variables at
+# runtime from framework.json — no template processing needed. They are copied
+# as-is from core/.claude/agents/ in Step 5 above.
+echo -e "${GREEN}  Core agents copied (read framework.json at dispatch time)${NC}"
 
 # Remove agents README from target (it's documentation for the starter, not the project)
 rm -f "$TARGET_DIR/.claude/agents/README.md"
-
-# Process discovery-explorer template — fill path placeholders
-EXPLORER_TEMPLATE="$TARGET_DIR/.claude/agents/discovery-explorer.md.template"
-if [ -f "$EXPLORER_TEMPLATE" ]; then
-  EXPLORER_OUT="$TARGET_DIR/.claude/agents/discovery-explorer.md"
-  cp "$EXPLORER_TEMPLATE" "$EXPLORER_OUT"
-  python3 -c "
-content = open('$EXPLORER_OUT').read()
-content = content.replace('{{PROJECT_LAYOUT}}', '''$PROJECT_LAYOUT''')
-content = content.replace('{{TYPES_FILE}}', '$TYPES_FILE')
-content = content.replace('{{COMPONENTS_GLOB}}', '$COMPONENTS_GLOB')
-content = content.replace('{{DATA_FILE}}', '$DATA_FILE')
-content = content.replace('{{TEST_GLOB}}', '$TEST_GLOB')
-open('$EXPLORER_OUT', 'w').write(content)
-" 2>/dev/null || {
-    sed -i.bak "s|{{PROJECT_LAYOUT}}||g" "$EXPLORER_OUT"
-    sed -i.bak "s|{{TYPES_FILE}}|$TYPES_FILE|g" "$EXPLORER_OUT"
-    sed -i.bak "s|{{COMPONENTS_GLOB}}|$COMPONENTS_GLOB|g" "$EXPLORER_OUT"
-    sed -i.bak "s|{{DATA_FILE}}|$DATA_FILE|g" "$EXPLORER_OUT"
-    sed -i.bak "s|{{TEST_GLOB}}|$TEST_GLOB|g" "$EXPLORER_OUT"
-    rm -f "$EXPLORER_OUT.bak"
-  }
-  rm -f "$EXPLORER_TEMPLATE"
-  echo -e "${GREEN}  discovery-explorer agent configured${NC}"
-fi
-
-# Process domain-implementer template — fill TDD command placeholders
-IMPLEMENTER_TEMPLATE="$TARGET_DIR/.claude/agents/domain-implementer.md.template"
-if [ -f "$IMPLEMENTER_TEMPLATE" ]; then
-  IMPLEMENTER_OUT="$TARGET_DIR/.claude/agents/domain-implementer.md"
-  cp "$IMPLEMENTER_TEMPLATE" "$IMPLEMENTER_OUT"
-  python3 -c "
-content = open('$IMPLEMENTER_OUT').read()
-content = content.replace('{{TEST_CMD}}', '$TEST_CMD')
-content = content.replace('{{TEST_CMD_ALL}}', '$TEST_CMD_ALL')
-content = content.replace('{{TYPECHECK_CMD}}', '$TYPECHECK_CMD')
-content = content.replace('{{PROJECT_CONVENTIONS}}', '''$PROJECT_CONVENTIONS''')
-content = content.replace('{{TEST_FILE_LOCATION_TABLE}}', '''$TEST_FILE_LOCATION_TABLE''')
-content = content.replace('{{TEST_WATCH_WARNING}}', '''$TEST_WATCH_WARNING''')
-open('$IMPLEMENTER_OUT', 'w').write(content)
-" 2>/dev/null || {
-    sed -i.bak "s|{{TEST_CMD}}|$TEST_CMD|g" "$IMPLEMENTER_OUT"
-    sed -i.bak "s|{{TEST_CMD_ALL}}|$TEST_CMD_ALL|g" "$IMPLEMENTER_OUT"
-    sed -i.bak "s|{{TYPECHECK_CMD}}|$TYPECHECK_CMD|g" "$IMPLEMENTER_OUT"
-    sed -i.bak "s|{{PROJECT_CONVENTIONS}}||g" "$IMPLEMENTER_OUT"
-    sed -i.bak "s|{{TEST_FILE_LOCATION_TABLE}}||g" "$IMPLEMENTER_OUT"
-    sed -i.bak "s|{{TEST_WATCH_WARNING}}||g" "$IMPLEMENTER_OUT"
-    rm -f "$IMPLEMENTER_OUT.bak"
-  }
-  rm -f "$IMPLEMENTER_TEMPLATE"
-  echo -e "${GREEN}  domain-implementer agent configured${NC}"
-fi
+# Remove legacy .template files if they exist from older setups
+rm -f "$TARGET_DIR/.claude/agents/"*.md.template
 
 # ─── Step 5.6: Set up plans directory ────────────────────────────────
 
@@ -354,74 +288,10 @@ with open('$FEATURE_SKILL', 'w') as f:
   rm -f "$FEATURE_SKILL.bak"
 }
 
-# Inject into security skill
-SECURITY_SKILL="$TARGET_DIR/.claude/skills/security/SKILL.md"
-PLATFORM_SECURITY=$(sed -n '/### Platform Security Checks/,$ p' "$PRESET_DIR/feature-overrides.md" 2>/dev/null || echo "")
-sed -i.bak "s|{{TYPECHECK_CMD}}|$TYPECHECK_CMD|g" "$SECURITY_SKILL"
-python3 -c "
-content = open('$SECURITY_SKILL').read()
-content = content.replace('{{PLATFORM_SECURITY_CHECKS}}', '''$PLATFORM_SECURITY''')
-open('$SECURITY_SKILL', 'w').write(content)
-" 2>/dev/null || {
-  sed -i.bak "s|{{PLATFORM_SECURITY_CHECKS}}||g" "$SECURITY_SKILL"
-}
-rm -f "$SECURITY_SKILL.bak"
+# security/fix/feature-parallel skills now read commands from framework.json at runtime.
+# Only the feature SKILL.md still needs structural placeholder substitution above.
 
-# Configure fix skill
-FIX_SKILL="$TARGET_DIR/.claude/skills/fix/SKILL.md"
-if [ -f "$FIX_SKILL" ]; then
-  sed -i.bak "s|{{TYPECHECK_CMD}}|$TYPECHECK_CMD|g" "$FIX_SKILL"
-  sed -i.bak "s|{{TEST_CMD}}|$TEST_CMD|g" "$FIX_SKILL"
-  rm -f "$FIX_SKILL.bak"
-fi
-
-# Configure feature-parallel skill
-FP_SKILL="$TARGET_DIR/.claude/skills/feature-parallel/SKILL.md"
-if [ -f "$FP_SKILL" ]; then
-  python3 -c "
-content = open('$FP_SKILL').read()
-content = content.replace('{{TYPECHECK_CMD}}', '$TYPECHECK_CMD')
-content = content.replace('{{TEST_CMD}}', '$TEST_CMD')
-content = content.replace('{{TEST_CMD_ALL}}', '$TEST_CMD_ALL')
-content = content.replace('{{TYPES_FILE}}', '$TYPES_FILE')
-content = content.replace('{{COMPONENTS_DIR}}', '$COMPONENTS_DIR')
-content = content.replace('{{DATA_FILE}}', '$DATA_FILE')
-content = content.replace('{{TEST_DIR}}', '$TEST_DIR')
-content = content.replace('{{PROJECT_TECHNICAL_RULES}}', '''$PROJECT_TECHNICAL_RULES''')
-open('$FP_SKILL', 'w').write(content)
-" 2>/dev/null || {
-    sed -i.bak "s|{{TYPECHECK_CMD}}|$TYPECHECK_CMD|g" "$FP_SKILL"
-    sed -i.bak "s|{{TEST_CMD}}|$TEST_CMD|g" "$FP_SKILL"
-    sed -i.bak "s|{{TEST_CMD_ALL}}|$TEST_CMD_ALL|g" "$FP_SKILL"
-    sed -i.bak "s|{{TYPES_FILE}}|$TYPES_FILE|g" "$FP_SKILL"
-    sed -i.bak "s|{{COMPONENTS_DIR}}|$COMPONENTS_DIR|g" "$FP_SKILL"
-    sed -i.bak "s|{{DATA_FILE}}|$DATA_FILE|g" "$FP_SKILL"
-    sed -i.bak "s|{{TEST_DIR}}|$TEST_DIR|g" "$FP_SKILL"
-    sed -i.bak "s|{{PROJECT_TECHNICAL_RULES}}||g" "$FP_SKILL"
-    rm -f "$FP_SKILL.bak"
-  }
-fi
-
-# Configure pre-commit-typecheck hook
-PRECOMMIT_HOOK="$TARGET_DIR/.claude/hooks/pre-commit-typecheck.sh"
-if [ -f "$PRECOMMIT_HOOK" ]; then
-  sed -i.bak "s|{{TYPECHECK_CMD}}|$TYPECHECK_CMD|g" "$PRECOMMIT_HOOK"
-  rm -f "$PRECOMMIT_HOOK.bak"
-fi
-
-# Configure format-on-write hook (use python — extensions contain * and | which break sed)
-FORMAT_HOOK="$TARGET_DIR/.claude/hooks/format-on-write.sh"
-python3 -c "
-content = open('$FORMAT_HOOK').read()
-content = content.replace('{{FORMAT_CMD}}', '$FORMAT_CMD')
-content = content.replace('{{FORMAT_EXTENSIONS_CASE}}', '$FORMAT_EXTENSIONS')
-open('$FORMAT_HOOK', 'w').write(content)
-"
-
-# Configure typecheck hook
-TYPECHECK_HOOK="$TARGET_DIR/.claude/hooks/typecheck-on-edit.sh"
-sed -i.bak "s|{{TYPECHECK_CMD}}|$TYPECHECK_CMD|g" "$TYPECHECK_HOOK"
-rm -f "$TYPECHECK_HOOK.bak"
+# Hooks now read variables at runtime from framework.json — no sed replacement needed.
 
 # Fix pre-push hook
 PRE_PUSH="$TARGET_DIR/.husky/pre-push"

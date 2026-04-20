@@ -229,13 +229,13 @@ to handle sequentially.
 ## TDD Instructions
 1. RED: Write failing tests first at the correct test file path. Run them — confirm ALL fail.
 2. GREEN: Write minimal implementation. Run tests — confirm ALL pass.
-3. Typecheck: Run {{TYPECHECK_CMD}} — must pass before committing.
+3. Typecheck: Run TYPECHECK_CMD (from .claude/framework.json) — must pass before committing.
 4. Commit: git add <your files only> && git commit -m 'feat(<scope>): <description>'
 
 ## Technical Rules
 {{PROJECT_TECHNICAL_RULES}}
 
-## Test command: {{TEST_CMD}} <test-file-path>
+## Test command: <TEST_CMD from .claude/framework.json> <test-file-path>
       ")
 ```
 
@@ -265,8 +265,9 @@ git merge --no-ff <branch> -m "chore(merge): integrate <domain> domain into feat
 **Post-merge validation:**
 
 ```bash
-{{TYPECHECK_CMD}}
-{{TEST_CMD_ALL}}
+# Read TYPECHECK_CMD and TEST_CMD_ALL from .claude/framework.json
+<TYPECHECK_CMD>
+<TEST_CMD_ALL>
 ```
 
 If either fails, diagnose and fix before proceeding.
@@ -300,7 +301,7 @@ Dispatch validation agents simultaneously. At minimum, always dispatch the revie
 ```
 Agent(subagent_type: "reviewer",
       prompt: "Review all changes from this feature delivery.
-        Run typecheck ({{TYPECHECK_CMD}}) and tests ({{TEST_CMD_ALL}}).
+        Run typecheck (TYPECHECK_CMD from .claude/framework.json) and tests (TEST_CMD_ALL from .claude/framework.json).
         Check: type safety, input validation, security, injection risks,
         data exposure, error handling, data integrity.
         Report findings with severity ratings (CRITICAL/HIGH/MEDIUM/LOW).")
@@ -321,8 +322,9 @@ Output phase banner:
 ### Step 1: Final checks
 
 ```bash
-{{TYPECHECK_CMD}}
-{{TEST_CMD_ALL}}
+# Read TYPECHECK_CMD and TEST_CMD_ALL from .claude/framework.json
+<TYPECHECK_CMD>
+<TEST_CMD_ALL>
 ```
 
 ### Step 2: Commit and push

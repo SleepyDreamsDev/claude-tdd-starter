@@ -2,7 +2,13 @@
 # Stop hook: displays a checklist when Claude Code completes a session.
 # Runs alongside notify.sh in the Stop lifecycle event.
 
-cat << 'EOF'
+# Load project variables from framework.json
+VARS="$CLAUDE_PROJECT_DIR/.claude/framework.json"
+_var() { jq -r ".$1" "$VARS" 2>/dev/null; }
+TEST_CMD=$(_var TEST_CMD)
+TYPECHECK_CMD=$(_var TYPECHECK_CMD)
+
+cat << EOF
 
 ── STOP CHECKLIST ───────────────────────────────
   [ ] progress.md updated?  (.claude/progress.md)
@@ -15,10 +21,10 @@ cat << 'EOF'
         (if an approach was rejected or a decision made)
   [ ] Memory files updated?
         (if non-obvious project context was learned)
-  [ ] All tests passing?  →  check CLAUDE.md for test command
-  [ ] Types clean?        →  check CLAUDE.md for typecheck command
+  [ ] All tests passing?  →  ${TEST_CMD:-check CLAUDE.md for test command}
+  [ ] Types clean?        →  ${TYPECHECK_CMD:-check CLAUDE.md for typecheck command}
   [ ] Framework improvements to sync to claude-tdd-starter?
-        (hooks, skills, agents, rules — see /feature Step 7.5)
+        (hooks, skills, agents, rules — see framework-boundary.md)
 ─────────────────────────────────────────────────
 
 EOF

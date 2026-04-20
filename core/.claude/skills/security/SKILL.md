@@ -66,7 +66,11 @@ Check each file against applicable categories from Phase 2:
 9. **Logging Failures** — Sensitive data in logs, missing audit trail for destructive operations
 10. **SSRF** — User-controlled URLs passed to server-side fetch/request
 
-{{PLATFORM_SECURITY_CHECKS}}
+### Platform Security Checks
+
+If `.claude/skills/security/PROJECT_OVERRIDES.md` exists, **Read it now** and
+use its `## Platform Security Checks` section instead of (or in addition to)
+the OWASP checks above.
 
 ---
 
@@ -114,9 +118,7 @@ For each CRITICAL and HIGH finding (and MEDIUM if user requested):
 1. Apply the fix described in the report.
 2. Run tests after each fix.
 3. If a fix breaks tests, revert and try a different approach.
-4. After all fixes applied, run full validation:
-   ```bash
-   {{TYPECHECK_CMD}}
-   ```
+4. After all fixes applied, run full validation using `TYPECHECK_CMD` from
+   `.claude/framework.json` (or the command in CLAUDE.md if framework.json absent).
 
 Output a summary of fixes applied.

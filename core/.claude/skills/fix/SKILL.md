@@ -91,11 +91,11 @@ Output:
 Run these checks. Both must pass before committing.
 
 ```bash
-# Type check
-{{TYPECHECK_CMD}}
+# Type check — use TYPECHECK_CMD from .claude/framework.json
+<TYPECHECK_CMD>
 
-# Scoped test run — target affected file(s) only
-{{TEST_CMD}} <test-file-path>
+# Scoped test run — use TEST_CMD from .claude/framework.json
+<TEST_CMD> <test-file-path>
 ```
 
 If type-check fails: fix the type error — do not suppress with `any` or `@ts-ignore`.
