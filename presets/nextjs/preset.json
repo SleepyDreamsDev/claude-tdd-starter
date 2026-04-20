@@ -11,6 +11,12 @@
     "COVERAGE_THRESHOLD": "70",
     "SCOPES": "app, api, components, lib, auth, db",
     "HAS_AGENTS": false,
+    "TYPES_FILE": "src/lib/types.ts",
+    "COMPONENTS_DIR": "src/components/",
+    "COMPONENTS_GLOB": "src/components/**/*.tsx",
+    "DATA_FILE": "src/server/db/schema.ts",
+    "TEST_DIR": "src/**/__tests__/",
+    "TEST_GLOB": "src/**/__tests__/*.test.{ts,tsx}",
     "PACKAGE_MANAGER": "pnpm",
     "LINT_STAGED": {
       "*.{ts,tsx}": ["eslint --fix", "prettier --write"],

@@ -11,6 +11,12 @@
     "COVERAGE_THRESHOLD": "70",
     "SCOPES": "api, routes, middleware, models, lib",
     "HAS_AGENTS": false,
+    "TYPES_FILE": "src/types/index.ts",
+    "COMPONENTS_DIR": "src/routes/",
+    "COMPONENTS_GLOB": "src/routes/**/*.ts",
+    "DATA_FILE": "src/models/index.ts",
+    "TEST_DIR": "src/**/__tests__/",
+    "TEST_GLOB": "src/**/__tests__/*.test.ts",
     "PACKAGE_MANAGER": "npm",
     "LINT_STAGED": {
       "*.{ts,tsx}": ["eslint --fix", "prettier --write"],

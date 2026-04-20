@@ -1,50 +1,53 @@
 ### Workspace Detection (PHASE 1)
 
-   | Signal in description | Workspace | Test framework | Test file pattern |
-   |---|---|---|---|
-   | endpoint, controller, service, guard, DTO, module, API | `apps/api` | Jest | `*.spec.ts` co-located |
-   | component, page, hook, store, UI, form, dashboard | `apps/web` | Vitest | `*.test.ts(x)` in `__tests__/` |
-   | type, schema, validation, calculation, util, shared | `packages/shared` | Vitest | `*.test.ts` in `__tests__/` |
-   | job, queue, worker, processor | `apps/worker` | Vitest | `*.test.ts` in `__tests__/` |
+| Signal in description                                  | Workspace         | Test framework | Test file pattern              |
+| ------------------------------------------------------ | ----------------- | -------------- | ------------------------------ |
+| endpoint, controller, service, guard, DTO, module, API | `apps/api`        | Jest           | `*.spec.ts` co-located         |
+| component, page, hook, store, UI, form, dashboard      | `apps/web`        | Vitest         | `*.test.ts(x)` in `__tests__/` |
+| type, schema, validation, calculation, util, shared    | `packages/shared` | Vitest         | `*.test.ts` in `__tests__/`    |
+| job, queue, worker, processor                          | `apps/worker`     | Vitest         | `*.test.ts` in `__tests__/`    |
 
-   If the feature spans multiple workspaces, process in order:
-   packages/shared -> apps/api -> apps/web -> apps/worker.
+If the feature spans multiple workspaces, process in order:
+packages/shared -> apps/api -> apps/web -> apps/worker.
 
-   Classify scope:
-   - **Single-workspace** → use combined RED+GREEN agent dispatch
-   - **Multi-workspace** → orchestrate with parallel subagents where safe
+Classify scope:
+
+- **Single-workspace** → use combined RED+GREEN agent dispatch
+- **Multi-workspace** → orchestrate with parallel subagents where safe
 
 ### Test Patterns
 
-   **apps/web:**
-   - Vitest globals enabled (describe, it, expect, vi available without import)
-   - Component tests: `@testing-library/react` + `@testing-library/user-event`
-   - Use `renderWithRouter` from `@/test/utils` for routed components
-   - Path alias: `@/` = `./src/`
+**apps/web:**
 
-   **apps/api:**
-   - Uses `@nestjs/testing` with `Test.createTestingModule` pattern
-   - Uses `supertest` for HTTP integration tests
-   - E2E tests go in `apps/api/test/` with `*.e2e-spec.ts`
-   - Jest globals available without import
+- Vitest globals enabled (describe, it, expect, vi available without import)
+- Component tests: `@testing-library/react` + `@testing-library/user-event`
+- Use `renderWithRouter` from `@/test/utils` for routed components
+- Path alias: `@/` = `./src/`
+
+**apps/api:**
+
+- Uses `@nestjs/testing` with `Test.createTestingModule` pattern
+- Uses `supertest` for HTTP integration tests
+- E2E tests go in `apps/api/test/` with `*.e2e-spec.ts`
+- Jest globals available without import
 
 ### Test Commands
 
-   **CRITICAL: Always use the `run` flag with vitest. Without it, vitest starts watch mode and hangs forever.**
+**CRITICAL: Always use the `run` flag with vitest. Without it, vitest starts watch mode and hangs forever.**
 
-   | Workspace | Command |
-   |---|---|
-   | `apps/web` | `cd apps/web && npx vitest run <test-file>` |
-   | `apps/api` | `cd apps/api && npx jest <test-file>` |
-   | `packages/shared` | `cd packages/shared && npx vitest run <test-file>` |
+| Workspace         | Command                                            |
+| ----------------- | -------------------------------------------------- |
+| `apps/web`        | `cd apps/web && npx vitest run <test-file>`        |
+| `apps/api`        | `cd apps/api && npx jest <test-file>`              |
+| `packages/shared` | `cd packages/shared && npx vitest run <test-file>` |
 
 ### Test Runner Reference (CLAUDE.md)
 
-| Workspace | Runner | Run single file | File pattern | Location |
-|---|---|---|---|---|
-| apps/web | Vitest | `cd apps/web && npx vitest run <file>` | `*.test.ts(x)` | `__tests__/` subdirs |
-| apps/api | Jest | `cd apps/api && npx jest <file>` | `*.spec.ts` | Co-located with source |
-| packages/shared | Vitest | `cd packages/shared && npx vitest run <file>` | `*.test.ts` | `__tests__/` subdirs |
+| Workspace       | Runner | Run single file                               | File pattern   | Location               |
+| --------------- | ------ | --------------------------------------------- | -------------- | ---------------------- |
+| apps/web        | Vitest | `cd apps/web && npx vitest run <file>`        | `*.test.ts(x)` | `__tests__/` subdirs   |
+| apps/api        | Jest   | `cd apps/api && npx jest <file>`              | `*.spec.ts`    | Co-located with source |
+| packages/shared | Vitest | `cd packages/shared && npx vitest run <file>` | `*.test.ts`    | `__tests__/` subdirs   |
 
 ### Validation Commands (PHASE 5)
 
@@ -111,6 +114,7 @@ Agent(name: "frontend-dev", subagent_type: "frontend-dev",
 #### API client generation (if API modified)
 
 After GREEN, if `apps/api/src/` was modified:
+
 ```bash
 npm run codegen
 ```
@@ -122,3 +126,53 @@ npm run codegen
 - **NestJS**: DTOs have `@IsString()`, `@IsNumber()`, etc.? `ValidationPipe` with `whitelist: true`?
 - **React**: No unsafe HTML rendering? User input sanitized before display?
 - **API responses**: No password hashes, tokens, or internal errors leaked?
+
+### Project Layout
+
+apps/
+├── api/ # NestJS backend
+│ └── src/
+│ ├── modules/ # Feature modules (controller + service + module)
+│ └── common/ # Guards, pipes, interceptors, decorators
+├── web/ # React frontend
+│ └── src/
+│ ├── components/ # React components
+│ └── pages/ # Route-level pages
+└── worker/ # Background jobs and queues
+packages/
+└── shared/ # Shared types and utilities
+└── src/
+├── types/ # Shared TypeScript interfaces
+└── index.ts
+
+### Project Conventions
+
+- NestJS: always use module/controller/service structure — never skip the module layer
+- DTOs with class-validator decorators (`@IsString()`, `@IsNumber()`) for all API inputs
+- `ValidationPipe` with `whitelist: true` globally on the NestJS app
+- React components: function declarations, named exports
+- Shared types in `packages/shared` — never duplicate between api and web
+- Absolute imports: `@/` alias for web side, standard paths for api
+- No `any` — use `unknown` and narrow, or define explicit types
+
+### Test File Location Table
+
+| Domain          | Source path              | Test file                                        |
+| --------------- | ------------------------ | ------------------------------------------------ |
+| NestJS module   | apps/api/src/            | Co-located `*.spec.ts` next to source            |
+| React component | apps/web/src/components/ | apps/web/src/components/\*_/**tests**/_.test.tsx |
+| Shared utility  | packages/shared/src/     | packages/shared/src/\*_/**tests**/_.test.ts      |
+| Web hook        | apps/web/src/hooks/      | apps/web/src/hooks/**tests**/\*.test.ts          |
+
+### Test Watch Warning
+
+**CRITICAL:** Never run `npx vitest` without `run` in apps/web — it starts watch mode and hangs. NestJS tests (`npx jest`) do not have this issue.
+
+### Project Technical Rules
+
+- NestJS: always use module/controller/service structure
+- DTOs with class-validator decorators for all API inputs
+- React components: function declarations, named exports
+- Shared types in packages/shared — no duplicating between api and web
+- Absolute imports: @/ for web, standard for api
+- No `any` type — use `unknown` and narrow

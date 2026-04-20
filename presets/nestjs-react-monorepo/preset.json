@@ -13,6 +13,12 @@
     "HAS_AGENTS": true,
     "AGENT_LIST": ["backend-dev", "frontend-dev"],
     "CODEGEN_CMD": "npm run codegen",
+    "TYPES_FILE": "packages/shared/src/types/index.ts",
+    "COMPONENTS_DIR": "apps/web/src/components/",
+    "COMPONENTS_GLOB": "apps/web/src/components/**/*.tsx",
+    "DATA_FILE": "packages/shared/src/index.ts",
+    "TEST_DIR": "apps/web/src/**/__tests__/",
+    "TEST_GLOB": "apps/**/__tests__/*.test.{ts,tsx}",
     "PACKAGE_MANAGER": "npm",
     "LINT_STAGED": {
       "apps/web/**/*.{ts,tsx}": ["prettier --write"],
