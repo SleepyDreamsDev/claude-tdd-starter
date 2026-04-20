@@ -72,6 +72,12 @@ Detailed rules live in dedicated files — read them for the full constraints:
 - **TDD workflow:** `.claude/rules/tdd-workflow.md`
 - **Session reporting:** `.claude/rules/session-reporting.md`
 - **Technical conventions:** `.claude/rules/technical.md` _(create per project)_
+- **Plugin gate:** `.claude/rules/plugin-gate.md`
+
+## Session Discipline
+
+- Update `.claude/progress.md` at the end of each session — the `session-start.sh` hook injects it into every new session's context
+- `/compact` after each completed phase (RED / GREEN / REFACTOR) — don't wait for the warning
 
 ## Available Skills
 

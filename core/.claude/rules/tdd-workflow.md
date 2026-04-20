@@ -57,6 +57,7 @@ UI components: test behavior, not implementation details.
 | Component              | `src/components/` | `src/components/**/__tests__/*.test.tsx` |
 | Server action / router | `src/server/`     | `src/server/**/__tests__/*.test.ts`      |
 | Utility / lib          | `src/lib/`        | `src/lib/**/__tests__/*.test.ts`         |
+| Hook                   | `src/hooks/`      | `src/hooks/__tests__/*.test.ts`          |
 
 ## Escape Hatches
 

@@ -21,6 +21,19 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh\"",
+            "timeout": 5,
+            "statusMessage": "Loading session context..."
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -30,6 +43,23 @@
             "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/block-dangerous.sh\"",
             "timeout": 10,
             "statusMessage": "Checking command safety..."
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/block-commit-on-main.sh\"",
+            "timeout": 5,
+            "statusMessage": "Checking branch safety..."
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/block-edit-outside-worktree.sh\"",
+            "timeout": 5,
+            "statusMessage": "Checking worktree scope..."
           }
         ]
       },
@@ -46,6 +76,17 @@
       }
     ],
     "PostToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"Plan mode just exited. IMPORTANT: Immediately write the complete plan to .claude/plans/<feature-slug>.md (kebab-case filename matching the feature). Include: goal, all decisions made, files to create/modify, step-by-step implementation notes, and constraints. Then tell the user: Plan saved to .claude/plans/<filename>.md — run /clear, then /feature referencing that file.\"}}'",
+            "timeout": 5,
+            "statusMessage": "Reminding Claude to save plan..."
+          }
+        ]
+      },
       {
         "matcher": "Edit|MultiEdit|Write",
         "hooks": [
@@ -98,6 +139,12 @@
             "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-reminder.sh\"",
             "timeout": 5,
             "statusMessage": "Stop checklist..."
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/token-logger.sh\"",
+            "timeout": 15,
+            "statusMessage": "Logging token usage..."
           }
         ]
       }

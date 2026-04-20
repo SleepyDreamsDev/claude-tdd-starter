@@ -1,9 +1,10 @@
 ---
 name: reviewer
 description: >
-  Code reviewer and security analyst. Validates test coverage, type safety,
-  OWASP compliance, and code quality. Use at PHASE 5 of /feature or when
-  running /security.
+  Code reviewer and security analyst (Tier 2 — runs when Codex is unavailable
+  or for logic/security changes after Codex). Validates test coverage, type
+  safety, OWASP compliance, and code quality. Use at PHASE 5 of /feature or
+  when running /security.
 model: opus
 ---
 
