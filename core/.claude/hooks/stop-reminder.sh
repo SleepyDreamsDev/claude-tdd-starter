@@ -5,6 +5,11 @@
 cat << 'EOF'
 
 ── STOP CHECKLIST ───────────────────────────────
+  [ ] progress.md updated?  (.claude/progress.md)
+        → Last updated date, branch, last commit
+        → Build table: mark ✅ steps done, add commit hashes
+        → Next up: update to actual next step
+        → Unpushed items: list any unmerged commits/PRs
   [ ] backlog.md updated? (.claude/plans/backlog.md)
   [ ] architecture-decisions.md updated?
         (if an approach was rejected or a decision made)
