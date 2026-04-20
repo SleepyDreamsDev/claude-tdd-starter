@@ -66,6 +66,7 @@ $(_var PROJECT_NAME)           # e.g. forever-clean
 ### In agents and skills (markdown instructions)
 
 Add this at the top of the agent/skill instructions:
+
 ```
 Read .claude/framework.json — use its values for TYPECHECK_CMD, TEST_CMD,
 PROJECT_NAME, and other project variables throughout this task.

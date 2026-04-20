@@ -35,16 +35,16 @@ Scope: $ARGUMENTS (if empty, review unstaged changes via `git diff`)
 
 Classify the changes into threat categories:
 
-| Change type | Threat categories to check |
-|---|---|
-| API endpoint / controller | Auth bypass, IDOR, mass assignment, rate limiting |
-| User input handling (forms, DTOs) | Injection (SQL, XSS, command), validation bypass |
-| Authentication / session code | Credential stuffing, session fixation, token leakage |
-| File upload / download | Path traversal, unrestricted upload, SSRF |
-| Database queries | SQL injection, data exposure, missing tenant scoping |
-| External API calls | SSRF, secret leakage, response injection |
-| Frontend rendering | XSS (DOM-based), open redirect, sensitive data in client |
-| Configuration / env vars | Hardcoded secrets, insecure defaults, missing validation |
+| Change type                       | Threat categories to check                               |
+| --------------------------------- | -------------------------------------------------------- |
+| API endpoint / controller         | Auth bypass, IDOR, mass assignment, rate limiting        |
+| User input handling (forms, DTOs) | Injection (SQL, XSS, command), validation bypass         |
+| Authentication / session code     | Credential stuffing, session fixation, token leakage     |
+| File upload / download            | Path traversal, unrestricted upload, SSRF                |
+| Database queries                  | SQL injection, data exposure, missing tenant scoping     |
+| External API calls                | SSRF, secret leakage, response injection                 |
+| Frontend rendering                | XSS (DOM-based), open redirect, sensitive data in client |
+| Configuration / env vars          | Hardcoded secrets, insecure defaults, missing validation |
 
 Output a brief threat model: what the code does, what could go wrong.
 
@@ -55,6 +55,7 @@ Output a brief threat model: what the code does, what could go wrong.
 Check each file against applicable categories from Phase 2:
 
 ### OWASP Top 10 Checks
+
 1. **Broken Access Control** — Missing auth guards, IDOR, missing tenant scoping
 2. **Cryptographic Failures** — Plaintext secrets, weak hashing, missing encryption
 3. **Injection** — Raw SQL, unsafe DOM manipulation, dynamic code execution, unsanitized templates, command injection
