@@ -8,7 +8,7 @@ description: >
   "add feature", or runs /feature.
 command: /feature
 argument-hint: "[--careful] <feature description>"
-allowed-tools: Read, Glob, Grep, Write, Edit, MultiEdit, Bash, TodoWrite
+allowed-tools: Read, Glob, Grep, Write, Edit, MultiEdit, Bash, TodoWrite, Agent, Skill
 ---
 
 # Feature Delivery: Orchestrated TDD Cycle
@@ -55,18 +55,147 @@ Continue immediately — this is informational, not a gate.
 
 ### Step 1: Load plan context
 
-Check if a plan file exists:
+Check if a plan file exists using a three-level lookup (most reliable first):
 
-1. Run `ls -t .claude/plans/*.md 2>/dev/null | head -1` to find the most recent plan.
-2. If a plan file exists, read it. Use it as the detailed specification for this feature.
+```bash
+# Level 1 — active pointer (set by any previous /feature run for this feature)
+PLAN=$(cat .claude/plans/.active 2>/dev/null)
+[ -n "$PLAN" ] && [ ! -f "$PLAN" ] && PLAN=""   # clear if file was deleted
+
+# Level 2 — slug match (works when args are similar)
+if [ -z "$PLAN" ]; then
+  SLUG=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
+  PLAN=$(ls .claude/plans/*${SLUG}*.md 2>/dev/null | head -1)
+fi
+
+# Level 3 — mtime fallback (last resort when args differ completely)
+[ -z "$PLAN" ] && PLAN=$(ls -t .claude/plans/*.md 2>/dev/null | grep -v '\.active' | head -1)
+```
+
+After finding a plan (any level), **write the active pointer**:
+
+```bash
+[ -n "$PLAN" ] && echo "$PLAN" > .claude/plans/.active
+```
+
+This pointer survives interruptions — the next `/feature` invocation reads it first,
+bypassing slug matching entirely. Clear it after a successful SHIP commit (Step 4).
+
+1. If a plan file was found, read it. Use it as the detailed specification for this feature.
    The plan is the source of truth for scope, file locations, and acceptance criteria.
-3. If no plan file exists, proceed using only $ARGUMENTS as the feature specification.
+2. If no plan file exists, proceed to Step 1.5 to auto-generate one.
+
+### Step 1.5: Auto-generate plan (when no plan exists)
+
+Only execute this step when Step 1 found no existing plan file.
+
+```bash
+mkdir -p .claude/plans
+```
+
+Dispatch an Opus planning subagent. It reads all project reference material in
+isolation — its context is discarded after writing the plan file. The main
+session only ever sees the compact plan.
+
+```
+Agent(model: "opus",
+      prompt: "
+<feature>$ARGUMENTS</feature>
+<task>
+You are a planning agent for the /feature TDD pipeline. Read available project
+documentation and produce a compact implementation plan. The main session will
+ONLY see your plan file — all reference material must be distilled, not pasted.
+
+Follow these steps IN ORDER:
+
+1. Read CLAUDE.md — understand project conventions, commands, and architecture.
+2. Read .claude/progress.md if it exists — get current branch and last commit.
+3. Read any spec or backlog files found in Specs/ or .claude/plans/ — extract
+   the matching story and its acceptance criteria.
+4. Read .claude/dependency-map.md if it exists — note layer ordering.
+
+5. Write the plan to .claude/plans/<slug>.md where slug is a kebab-case
+   description of the feature (e.g., user-profile-page).
+
+6. Output EXACTLY this line as the LAST line of your response:
+   PLAN_FILE: .claude/plans/<slug>.md
+
+Keep the plan between 1,000-3,000 tokens. Be dense, not verbose.
+</task>
+<format>
+# Plan: <Feature Name>
+
+## Goal
+One sentence.
+
+## Acceptance Criteria
+- [ ] ...
+
+## Tasks
+1. ...
+
+## File Map
+| Action | File | Notes |
+|--------|------|-------|
+| create | ... | ... |
+
+## Verification
+- ...
+</format>
+")
+```
+
+After the subagent completes:
+
+1. Parse the `PLAN_FILE:` line from the agent's return value to get the exact filename.
+2. If the `PLAN_FILE:` line is present, read that file directly and write the active pointer:
+   ```bash
+   echo "$PLAN" > .claude/plans/.active
+   ```
+3. If the line is absent, fall back to slug-based search:
+   ```bash
+   PLAN=$(ls .claude/plans/*${SLUG}*.md 2>/dev/null | head -1)
+   [ -z "$PLAN" ] && PLAN=$(ls -t .claude/plans/*.md 2>/dev/null | grep -v '\.active' | head -1)
+   [ -n "$PLAN" ] && echo "$PLAN" > .claude/plans/.active
+   ```
+4. If still no file found, output warning and proceed with `$ARGUMENTS` only:
+
+> ── WARNING: Plan auto-generation failed. Proceeding with $ARGUMENTS only. ──
+
+### Step 1.6: Resume detection (when plan was loaded from disk)
+
+Only run this step when a plan was **loaded from an existing file** (Step 1 found it,
+not Step 1.5 generated it). This means a previous `/feature` run was interrupted.
+
+Check the current state to determine the resume point:
+
+```bash
+git status --short
+```
+
+**Decision tree:**
+
+| State                                               | Resume from                    |
+| --------------------------------------------------- | ------------------------------ |
+| No test files exist                                 | Phase 1 DISCOVER (fresh start) |
+| Test files exist but tests show failures            | Phase 3 GREEN (skip RED)       |
+| All tests pass, uncommitted changes in working tree | Phase 4 REFACTOR               |
+| All tests pass, changes staged/committed on branch  | Phase 5 SHIP                   |
+
+Output the resume banner:
+
+> ── RESUMING from \<phase> ── reason: \<what was found>
+
+If resuming mid-pipeline, skip all prior phases and jump directly to the detected
+resume point. Do not re-run work that already exists and passes.
 
 ### Phase status banner
 
-Output (only if plan was loaded):
+Output one of:
 
-> ── PHASE 0 PLAN ✓ ── loaded \<plan-filename>
+> ── PHASE 0 PLAN ✓ ── loaded \<plan-filename> ← pre-existing plan found in Step 1
+> ── PHASE 0 PLAN ✓ ── auto-generated \<plan-filename> ← Opus subagent created in Step 1.5
+> ── PHASE 0 PLAN ✗ ── no plan, using $ARGUMENTS ← fallback (subagent failed)
 
 ---
 
@@ -94,11 +223,23 @@ Output (only if plan was loaded):
    - Apply any CSS variable patterns, checklists, or conventions from the template
      when writing the skeleton in GREEN phase.
 
+6. Read `.claude/lessons.md` if it exists — apply any lessons relevant to the
+   detected domain before writing tests or implementation.
+
+7. Read `.claude/dependency-map.md` if it exists — use the layer order to determine
+   which domains are safe to work in parallel and which require sequential execution.
+
 ### Phase status banner
 
 Output:
 
 > ── PHASE 1 DISCOVER ✓ ── domain(s): \<detected>, agent(s): \<to dispatch>
+
+Then write the checkpoint:
+
+```bash
+echo "PHASE_1" > .claude/plans/.checkpoint
+```
 
 ---
 
@@ -146,6 +287,12 @@ Rules:
 Output:
 
 > ── PHASE 1.5 SPECIFY ✓ ── N scenarios in specs/\<feature>.feature
+
+Then write the checkpoint:
+
+```bash
+echo "PHASE_1_5" > .claude/plans/.checkpoint
+```
 
 ---
 
@@ -214,6 +361,12 @@ After RED+GREEN completes, output:
 > ── PHASE 2 RED ✓ ── N tests written, all failing
 > ── PHASE 3 GREEN ✓ ── N/N tests passing
 
+Then write the checkpoint:
+
+```bash
+echo "PHASE_3_GREEN" > .claude/plans/.checkpoint
+```
+
 ---
 
 ## PHASE 4 — REFACTOR: Improve Without Breaking
@@ -233,6 +386,48 @@ After RED+GREEN completes, output:
 Output:
 
 > ── PHASE 4 REFACTOR ✓ ── code improved, all tests green
+
+Then write the checkpoint:
+
+```bash
+echo "PHASE_4" > .claude/plans/.checkpoint
+```
+
+---
+
+## PHASE 4.5 — TOKEN ANALYSIS (output only, no auto-implement)
+
+Read the last entry from `.claude/logs/token-usage.jsonl` if it exists:
+
+```bash
+tail -1 .claude/logs/token-usage.jsonl 2>/dev/null | jq .
+```
+
+If the file is absent (first run before Stop hook fires), skip this phase silently.
+
+Using the last entry, evaluate these signals and produce recommendations
+for the **Workflow delta** section of the Kaizen retrospective.
+Do NOT auto-implement any of these — output them as suggestions only.
+
+### Signal 1 — Cache hit rate
+
+`cache_hit_pct = cache_read / total_input * 100`
+
+| Rate   | Recommendation                                                                                |
+| ------ | --------------------------------------------------------------------------------------------- |
+| < 30%  | Context is churning — use `/compact` after each RED/GREEN phase to rebuild the cache baseline |
+| 30–60% | Acceptable — consider `/compact` after Phase 3 GREEN if session exceeds 80k input tokens      |
+| > 60%  | Healthy — no action needed                                                                    |
+
+### Signal 2 — Session size
+
+`total_input` tokens for the session.
+
+| Tokens   | Recommendation                                                                                                     |
+| -------- | ------------------------------------------------------------------------------------------------------------------ |
+| < 80k    | Compact session — no concern                                                                                       |
+| 80k–150k | Large — check whether plan file is loading reference docs directly; distill them into the plan to avoid re-reading |
+| > 150k   | Very large — consider splitting the feature into two `/feature` invocations at a natural boundary                  |
 
 ---
 
@@ -320,7 +515,10 @@ Otherwise, skip this step.
 ```bash
 git commit -m "<message>"
 git push -u origin HEAD
+rm -f .claude/plans/.active .claude/plans/.checkpoint
 ```
+
+Clearing both files signals this feature is complete — the next `/feature` run starts fresh.
 
 ### Step 4.5: Copilot review gate
 
@@ -347,11 +545,11 @@ gh api "repos/$REPO/pulls/$PR/reviews" \
 
 Triage rules:
 
-| Severity | Action |
-|---|---|
-| Bug / security / correctness | Fix before merging |
+| Severity                      | Action                                        |
+| ----------------------------- | --------------------------------------------- |
+| Bug / security / correctness  | Fix before merging                            |
 | Style / cosmetic / suggestion | Fix if trivial (<5 min), note in PR otherwise |
-| Scope / docs observation | Note in PR description, skip fix |
+| Scope / docs observation      | Note in PR description, skip fix              |
 
 If fixes needed: apply, commit `fix(<scope>): address Copilot review`, re-run tests, then merge.
 
@@ -409,6 +607,10 @@ Classify each improvement as:
 | **Workflow** — process change suggestion                        | Output only, do NOT auto-implement (debatable) |
 | **Architecture** — structural change to codebase                | Output only, do NOT auto-implement (debatable) |
 
+Before writing the Kaizen banner, read the token analysis from Phase 4.5.
+Include any triggered signal recommendations in the **Token usage** section below.
+If Phase 4.5 was skipped (no log file yet), omit the Token usage section entirely.
+
 Output:
 
 ```
@@ -425,6 +627,10 @@ Output:
   Workflow delta (not auto-implemented):
     - <debatable changes to consider>
     - "none" if no changes needed
+
+  Token usage (recommendations only — do not auto-implement):
+    in: <total_input>  out: <total_output>  cache_hit: <pct>%
+    - <signal-driven recommendation from Phase 4.5, or "all signals healthy">
 ────────────────────────────────────────────────
 ```
 
@@ -432,6 +638,7 @@ Rules:
 
 - Keep it to 2-3 bullets per section — brevity over completeness
 - Focus on **actionable** improvements, not generic observations
+- Token recommendations come from Phase 4.5 signal table — do not invent them
 - If no improvements are obvious, output "No improvements identified this session"
 
 ---
@@ -442,19 +649,19 @@ Rules:
 
 **SYNC CANDIDATES** — files that are framework-generic and live in claude-tdd-starter:
 
-| Project path | Starter path |
-|---|---|
-| `.claude/hooks/*.sh` | `core/.claude/hooks/*.sh` |
-| `.claude/skills/feature/SKILL.md` | `core/.claude/skills/feature/SKILL.md` |
-| `.claude/skills/security/SKILL.md` | `core/.claude/skills/security/SKILL.md` |
-| `.claude/agents/reviewer.md` | `core/.claude/agents/reviewer.md.template` |
-| `.claude/settings.json` | `core/.claude/settings.json` |
-| `.claude/rules/tdd-workflow.md` | `core/.claude/rules/tdd-workflow.md` |
-| `.claude/rules/session-reporting.md` | `core/.claude/rules/session-reporting.md` |
-| `CLAUDE.md` | `core/CLAUDE.md.template` (manual — needs placeholder review) |
-| `.husky/*` | `core/.husky/*` |
-| `docs/solo-dev-sdlc-blueprint.md` | `core/docs/solo-dev-sdlc-blueprint.md` |
-| `docs/tdd-guide.md` | `core/docs/tdd-guide.md` |
+| Project path                         | Starter path                                                  |
+| ------------------------------------ | ------------------------------------------------------------- |
+| `.claude/hooks/*.sh`                 | `core/.claude/hooks/*.sh`                                     |
+| `.claude/skills/feature/SKILL.md`    | `core/.claude/skills/feature/SKILL.md`                        |
+| `.claude/skills/security/SKILL.md`   | `core/.claude/skills/security/SKILL.md`                       |
+| `.claude/agents/reviewer.md`         | `core/.claude/agents/reviewer.md.template`                    |
+| `.claude/settings.json`              | `core/.claude/settings.json`                                  |
+| `.claude/rules/tdd-workflow.md`      | `core/.claude/rules/tdd-workflow.md`                          |
+| `.claude/rules/session-reporting.md` | `core/.claude/rules/session-reporting.md`                     |
+| `CLAUDE.md`                          | `core/CLAUDE.md.template` (manual — needs placeholder review) |
+| `.husky/*`                           | `core/.husky/*`                                               |
+| `docs/solo-dev-sdlc-blueprint.md`    | `core/docs/solo-dev-sdlc-blueprint.md`                        |
+| `docs/tdd-guide.md`                  | `core/docs/tdd-guide.md`                                      |
 
 **Classification rules:**
 
