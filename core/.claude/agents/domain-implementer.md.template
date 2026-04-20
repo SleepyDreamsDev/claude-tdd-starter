@@ -60,7 +60,7 @@ Orchestrator must add this before the merge.
 {{TEST_CMD_ALL}}
 
 # Type check (required before commit)
-{{TYPE_CHECK_CMD}}
+{{TYPECHECK_CMD}}
 ```
 
 {{TEST_WATCH_WARNING}}

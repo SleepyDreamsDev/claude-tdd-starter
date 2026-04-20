@@ -71,6 +71,12 @@ echo -n "Project name (default: $DEFAULT_NAME): "
 read -r PROJECT_NAME
 PROJECT_NAME="${PROJECT_NAME:-$DEFAULT_NAME}"
 
+# ─── Step 3.5: Ask for starter repo path ─────────────────────────────
+
+echo ""
+echo -n "Path to claude-tdd-starter repo (leave empty to skip sync checks): "
+read -r STARTER_REPO_PATH
+
 # ─── Step 4: Load preset variables ──────────────────────────────────
 
 echo ""
@@ -86,6 +92,14 @@ FORMAT_CMD=$(jq -r '.variables.FORMAT_CMD // "npx prettier --write"' "$PRESET_DI
 FORMAT_EXTENSIONS=$(jq -r '.variables.FORMAT_EXTENSIONS // "*.ts|*.tsx|*.js|*.jsx|*.json|*.css|*.md|*.html|*.yaml|*.yml"' "$PRESET_DIR/preset.json")
 HAS_AGENTS=$(jq -r '.variables.HAS_AGENTS // false' "$PRESET_DIR/preset.json")
 PACKAGE_MANAGER=$(jq -r '.variables.PACKAGE_MANAGER // "npm"' "$PRESET_DIR/preset.json")
+TYPES_FILE=$(jq -r '.variables.TYPES_FILE // ""' "$PRESET_DIR/preset.json")
+COMPONENTS_DIR=$(jq -r '.variables.COMPONENTS_DIR // ""' "$PRESET_DIR/preset.json")
+COMPONENTS_GLOB=$(jq -r '.variables.COMPONENTS_GLOB // ""' "$PRESET_DIR/preset.json")
+DATA_FILE=$(jq -r '.variables.DATA_FILE // ""' "$PRESET_DIR/preset.json")
+TEST_DIR=$(jq -r '.variables.TEST_DIR // ""' "$PRESET_DIR/preset.json")
+TEST_GLOB=$(jq -r '.variables.TEST_GLOB // ""' "$PRESET_DIR/preset.json")
+TEST_CMD="$TEST_CMD_PRIMARY"
+TEST_CMD_ALL="$TEST_CI_CMD"
 
 # ─── Step 5: Copy core files ────────────────────────────────────────
 
@@ -170,6 +184,58 @@ fi
 # Remove agents README from target (it's documentation for the starter, not the project)
 rm -f "$TARGET_DIR/.claude/agents/README.md"
 
+# Process discovery-explorer template — fill path placeholders
+EXPLORER_TEMPLATE="$TARGET_DIR/.claude/agents/discovery-explorer.md.template"
+if [ -f "$EXPLORER_TEMPLATE" ]; then
+  EXPLORER_OUT="$TARGET_DIR/.claude/agents/discovery-explorer.md"
+  cp "$EXPLORER_TEMPLATE" "$EXPLORER_OUT"
+  python3 -c "
+content = open('$EXPLORER_OUT').read()
+content = content.replace('{{PROJECT_LAYOUT}}', '''$PROJECT_LAYOUT''')
+content = content.replace('{{TYPES_FILE}}', '$TYPES_FILE')
+content = content.replace('{{COMPONENTS_GLOB}}', '$COMPONENTS_GLOB')
+content = content.replace('{{DATA_FILE}}', '$DATA_FILE')
+content = content.replace('{{TEST_GLOB}}', '$TEST_GLOB')
+open('$EXPLORER_OUT', 'w').write(content)
+" 2>/dev/null || {
+    sed -i.bak "s|{{PROJECT_LAYOUT}}||g" "$EXPLORER_OUT"
+    sed -i.bak "s|{{TYPES_FILE}}|$TYPES_FILE|g" "$EXPLORER_OUT"
+    sed -i.bak "s|{{COMPONENTS_GLOB}}|$COMPONENTS_GLOB|g" "$EXPLORER_OUT"
+    sed -i.bak "s|{{DATA_FILE}}|$DATA_FILE|g" "$EXPLORER_OUT"
+    sed -i.bak "s|{{TEST_GLOB}}|$TEST_GLOB|g" "$EXPLORER_OUT"
+    rm -f "$EXPLORER_OUT.bak"
+  }
+  rm -f "$EXPLORER_TEMPLATE"
+  echo -e "${GREEN}  discovery-explorer agent configured${NC}"
+fi
+
+# Process domain-implementer template — fill TDD command placeholders
+IMPLEMENTER_TEMPLATE="$TARGET_DIR/.claude/agents/domain-implementer.md.template"
+if [ -f "$IMPLEMENTER_TEMPLATE" ]; then
+  IMPLEMENTER_OUT="$TARGET_DIR/.claude/agents/domain-implementer.md"
+  cp "$IMPLEMENTER_TEMPLATE" "$IMPLEMENTER_OUT"
+  python3 -c "
+content = open('$IMPLEMENTER_OUT').read()
+content = content.replace('{{TEST_CMD}}', '$TEST_CMD')
+content = content.replace('{{TEST_CMD_ALL}}', '$TEST_CMD_ALL')
+content = content.replace('{{TYPECHECK_CMD}}', '$TYPECHECK_CMD')
+content = content.replace('{{PROJECT_CONVENTIONS}}', '''$PROJECT_CONVENTIONS''')
+content = content.replace('{{TEST_FILE_LOCATION_TABLE}}', '''$TEST_FILE_LOCATION_TABLE''')
+content = content.replace('{{TEST_WATCH_WARNING}}', '''$TEST_WATCH_WARNING''')
+open('$IMPLEMENTER_OUT', 'w').write(content)
+" 2>/dev/null || {
+    sed -i.bak "s|{{TEST_CMD}}|$TEST_CMD|g" "$IMPLEMENTER_OUT"
+    sed -i.bak "s|{{TEST_CMD_ALL}}|$TEST_CMD_ALL|g" "$IMPLEMENTER_OUT"
+    sed -i.bak "s|{{TYPECHECK_CMD}}|$TYPECHECK_CMD|g" "$IMPLEMENTER_OUT"
+    sed -i.bak "s|{{PROJECT_CONVENTIONS}}||g" "$IMPLEMENTER_OUT"
+    sed -i.bak "s|{{TEST_FILE_LOCATION_TABLE}}||g" "$IMPLEMENTER_OUT"
+    sed -i.bak "s|{{TEST_WATCH_WARNING}}||g" "$IMPLEMENTER_OUT"
+    rm -f "$IMPLEMENTER_OUT.bak"
+  }
+  rm -f "$IMPLEMENTER_TEMPLATE"
+  echo -e "${GREEN}  domain-implementer agent configured${NC}"
+fi
+
 # ─── Step 5.6: Set up plans directory ────────────────────────────────
 
 echo -e "${YELLOW}Setting up plans...${NC}"
@@ -189,6 +255,17 @@ fi
 
 # Remove plans README from target
 rm -f "$TARGET_DIR/.claude/plans/README.md"
+
+# Process progress template
+PROGRESS_TEMPLATE="$TARGET_DIR/.claude/progress.md.template"
+if [ -f "$PROGRESS_TEMPLATE" ]; then
+  PROGRESS_OUT="$TARGET_DIR/.claude/progress.md"
+  cp "$PROGRESS_TEMPLATE" "$PROGRESS_OUT"
+  sed -i.bak "s|{{PROJECT_NAME}}|$PROJECT_NAME|g" "$PROGRESS_OUT"
+  rm -f "$PROGRESS_OUT.bak"
+  rm -f "$PROGRESS_TEMPLATE"
+  echo -e "${GREEN}  progress.md created${NC}"
+fi
 
 # ─── Step 6: Replace placeholders in skills ──────────────────────────
 
@@ -225,6 +302,11 @@ if [ -f "$PRESET_DIR/feature-overrides.md" ]; then
   AGENT_DISPATCH=$(extract_section "$PRESET_DIR/feature-overrides.md" "Agent Dispatch" "Security Gate Patterns")
   VALIDATION_COMMANDS=$(extract_section "$PRESET_DIR/feature-overrides.md" "Validation Commands" "Agent Dispatch")
   SECURITY_GATE_PATTERNS=$(extract_section "$PRESET_DIR/feature-overrides.md" "Security Gate Patterns" "Platform Security")
+  PROJECT_LAYOUT=$(extract_section "$PRESET_DIR/feature-overrides.md" "Project Layout" "Project Conventions")
+  PROJECT_CONVENTIONS=$(extract_section "$PRESET_DIR/feature-overrides.md" "Project Conventions" "Test File Location Table")
+  TEST_FILE_LOCATION_TABLE=$(extract_section "$PRESET_DIR/feature-overrides.md" "Test File Location Table" "Test Watch Warning")
+  TEST_WATCH_WARNING=$(extract_section "$PRESET_DIR/feature-overrides.md" "Test Watch Warning" "Project Technical Rules")
+  PROJECT_TECHNICAL_RULES=$(extract_section "$PRESET_DIR/feature-overrides.md" "Project Technical Rules" "~SENTINEL~")
 fi
 
 # Use python for reliable multi-line placeholder replacement
@@ -249,6 +331,13 @@ content = content.replace('{{VALIDATION_COMMANDS}}', validation.replace('### Val
 content = content.replace('{{SECURITY_GATE_PATTERNS}}', security_gate.strip() if security_gate else 'No security gate patterns configured for this preset.')
 content = content.replace('{{TYPECHECK_CMD}}', '$TYPECHECK_CMD')
 content = content.replace('{{TEST_CI_CMD}}', '$TEST_CI_CMD')
+
+starter_path = '$STARTER_REPO_PATH'
+if starter_path:
+    content = content.replace('{{STARTER_REPO_PATH}}', starter_path)
+else:
+    import re
+    content = re.sub(r'\n### Step 7\.5:.*?(?=\n### Step [89]|\Z)', '', content, flags=re.DOTALL)
 
 with open('$FEATURE_SKILL', 'w') as f:
     f.write(content)
@@ -277,6 +366,48 @@ open('$SECURITY_SKILL', 'w').write(content)
   sed -i.bak "s|{{PLATFORM_SECURITY_CHECKS}}||g" "$SECURITY_SKILL"
 }
 rm -f "$SECURITY_SKILL.bak"
+
+# Configure fix skill
+FIX_SKILL="$TARGET_DIR/.claude/skills/fix/SKILL.md"
+if [ -f "$FIX_SKILL" ]; then
+  sed -i.bak "s|{{TYPECHECK_CMD}}|$TYPECHECK_CMD|g" "$FIX_SKILL"
+  sed -i.bak "s|{{TEST_CMD}}|$TEST_CMD|g" "$FIX_SKILL"
+  rm -f "$FIX_SKILL.bak"
+fi
+
+# Configure feature-parallel skill
+FP_SKILL="$TARGET_DIR/.claude/skills/feature-parallel/SKILL.md"
+if [ -f "$FP_SKILL" ]; then
+  python3 -c "
+content = open('$FP_SKILL').read()
+content = content.replace('{{TYPECHECK_CMD}}', '$TYPECHECK_CMD')
+content = content.replace('{{TEST_CMD}}', '$TEST_CMD')
+content = content.replace('{{TEST_CMD_ALL}}', '$TEST_CMD_ALL')
+content = content.replace('{{TYPES_FILE}}', '$TYPES_FILE')
+content = content.replace('{{COMPONENTS_DIR}}', '$COMPONENTS_DIR')
+content = content.replace('{{DATA_FILE}}', '$DATA_FILE')
+content = content.replace('{{TEST_DIR}}', '$TEST_DIR')
+content = content.replace('{{PROJECT_TECHNICAL_RULES}}', '''$PROJECT_TECHNICAL_RULES''')
+open('$FP_SKILL', 'w').write(content)
+" 2>/dev/null || {
+    sed -i.bak "s|{{TYPECHECK_CMD}}|$TYPECHECK_CMD|g" "$FP_SKILL"
+    sed -i.bak "s|{{TEST_CMD}}|$TEST_CMD|g" "$FP_SKILL"
+    sed -i.bak "s|{{TEST_CMD_ALL}}|$TEST_CMD_ALL|g" "$FP_SKILL"
+    sed -i.bak "s|{{TYPES_FILE}}|$TYPES_FILE|g" "$FP_SKILL"
+    sed -i.bak "s|{{COMPONENTS_DIR}}|$COMPONENTS_DIR|g" "$FP_SKILL"
+    sed -i.bak "s|{{DATA_FILE}}|$DATA_FILE|g" "$FP_SKILL"
+    sed -i.bak "s|{{TEST_DIR}}|$TEST_DIR|g" "$FP_SKILL"
+    sed -i.bak "s|{{PROJECT_TECHNICAL_RULES}}||g" "$FP_SKILL"
+    rm -f "$FP_SKILL.bak"
+  }
+fi
+
+# Configure pre-commit-typecheck hook
+PRECOMMIT_HOOK="$TARGET_DIR/.claude/hooks/pre-commit-typecheck.sh"
+if [ -f "$PRECOMMIT_HOOK" ]; then
+  sed -i.bak "s|{{TYPECHECK_CMD}}|$TYPECHECK_CMD|g" "$PRECOMMIT_HOOK"
+  rm -f "$PRECOMMIT_HOOK.bak"
+fi
 
 # Configure format-on-write hook (use python — extensions contain * and | which break sed)
 FORMAT_HOOK="$TARGET_DIR/.claude/hooks/format-on-write.sh"
@@ -512,18 +643,22 @@ echo -e "${GREEN}║   Setup complete!                    ║${NC}"
 echo -e "${GREEN}╚══════════════════════════════════════╝${NC}"
 echo ""
 echo "What was set up:"
-echo "  - .claude/skills/feature/  — /feature TDD skill (Gherkin + FAST_MODE)"
-echo "  - .claude/skills/security/ — /security review skill"
-echo "  - .claude/hooks/           — format, typecheck, block-dangerous, notify, auto-approve-plan"
-echo "  - .claude/settings.json    — hook config + permissions"
+echo "  - .claude/skills/feature/         — /feature TDD skill (Gherkin + FAST_MODE)"
+echo "  - .claude/skills/feature-parallel/ — /feature-parallel parallel TDD skill"
+echo "  - .claude/skills/fix/             — /fix debugging skill"
+echo "  - .claude/skills/security/        — /security review skill"
+echo "  - .claude/skills/caveman/         — /caveman print-debugging skill"
+echo "  - .claude/hooks/                  — 14 hooks: format, typecheck, block-dangerous, notify, session, token-logger, and more"
+echo "  - .claude/settings.json           — hook config + permissions"
 if [ "$HAS_AGENTS" = "true" ]; then
-  echo "  - .claude/agents/          — specialist agents + reviewer"
+  echo "  - .claude/agents/                 — specialist agents + reviewer + discovery-explorer + domain-implementer"
 fi
-echo "  - .claude/plans/           — backlog + plans directory"
-echo "  - specs/                   — Gherkin spec output directory"
-echo "  - .husky/                  — pre-commit, commit-msg, pre-push"
-echo "  - commitlint.config.js     — conventional commit enforcement"
-echo "  - CLAUDE.md                — TDD rules, Gherkin docs, skill docs"
+echo "  - .claude/plans/                  — backlog + plans directory"
+echo "  - .claude/progress.md             — session progress tracker"
+echo "  - specs/                          — Gherkin spec output directory"
+echo "  - .husky/                         — pre-commit, commit-msg, pre-push"
+echo "  - commitlint.config.js            — conventional commit enforcement"
+echo "  - CLAUDE.md                       — TDD rules, Gherkin docs, skill docs"
 echo ""
 echo "Workflow:"
 echo "  1. Plan:     Use plan mode to design features"

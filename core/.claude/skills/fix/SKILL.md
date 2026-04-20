@@ -92,7 +92,7 @@ Run these checks. Both must pass before committing.
 
 ```bash
 # Type check
-{{TYPE_CHECK_CMD}}
+{{TYPECHECK_CMD}}
 
 # Scoped test run — target affected file(s) only
 {{TEST_CMD}} <test-file-path>

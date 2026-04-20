@@ -118,3 +118,50 @@ Files that trigger automatic `/security` invocation:
 - **Dexie/IndexedDB**: Sensitive records encrypted at rest using Web Crypto API (AES-GCM)
 - **Offline data**: Local data integrity verified on sync (checksums, version vectors)
 - **Deep links**: Capacitor deep link handlers validate URL schemes and parameters
+
+### Project Layout
+
+src/
+├── components/ # React components
+│ ├── ui/ # Shared UI primitives
+│ └── [feature]/ # Feature-specific components
+├── pages/ # Top-level screens / routes
+├── lib/
+│ ├── db.ts # Dexie/IndexedDB database
+│ ├── sync/ # Cloud sync logic
+│ └── crypto/ # Encryption utilities
+├── hooks/ # Custom React hooks
+└── types/
+└── index.ts # Shared TypeScript types
+
+### Project Conventions
+
+- Function declarations for components, not arrow functions
+- Named exports for all components, hooks, and utilities
+- Absolute imports with @/ alias — never relative paths
+- No `any` — use `unknown` and narrow, or define explicit types
+- Dexie for all local persistence — never raw localStorage for structured data
+- Encrypt sensitive data with Web Crypto API (AES-GCM) before storing
+- Mock Capacitor plugins in tests with `vi.mock('@capacitor/...')`
+
+### Test File Location Table
+
+| Domain          | Source path     | Test file                               |
+| --------------- | --------------- | --------------------------------------- |
+| Component       | src/components/ | src/components/\*_/**tests**/_.test.tsx |
+| Page / screen   | src/pages/      | src/pages/\*_/**tests**/_.test.tsx      |
+| Database / sync | src/lib/        | src/lib/\*_/**tests**/_.test.ts         |
+| Hook            | src/hooks/      | src/hooks/**tests**/\*.test.ts          |
+
+### Test Watch Warning
+
+**CRITICAL:** Never run `bunx vitest` without `run` — it starts watch mode and hangs.
+
+### Project Technical Rules
+
+- Function declarations for components (not arrow functions)
+- Named exports for components, hooks, utilities
+- Absolute imports with @/ alias
+- Dexie for all local persistence — no raw localStorage for data
+- Encrypt sensitive data with Web Crypto API before storing
+- No `any` type — use `unknown` and narrow

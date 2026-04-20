@@ -229,7 +229,7 @@ to handle sequentially.
 ## TDD Instructions
 1. RED: Write failing tests first at the correct test file path. Run them — confirm ALL fail.
 2. GREEN: Write minimal implementation. Run tests — confirm ALL pass.
-3. Typecheck: Run {{TYPE_CHECK_CMD}} — must pass before committing.
+3. Typecheck: Run {{TYPECHECK_CMD}} — must pass before committing.
 4. Commit: git add <your files only> && git commit -m 'feat(<scope>): <description>'
 
 ## Technical Rules
@@ -265,7 +265,7 @@ git merge --no-ff <branch> -m "chore(merge): integrate <domain> domain into feat
 **Post-merge validation:**
 
 ```bash
-{{TYPE_CHECK_CMD}}
+{{TYPECHECK_CMD}}
 {{TEST_CMD_ALL}}
 ```
 
@@ -300,7 +300,7 @@ Dispatch validation agents simultaneously. At minimum, always dispatch the revie
 ```
 Agent(subagent_type: "reviewer",
       prompt: "Review all changes from this feature delivery.
-        Run typecheck ({{TYPE_CHECK_CMD}}) and tests ({{TEST_CMD_ALL}}).
+        Run typecheck ({{TYPECHECK_CMD}}) and tests ({{TEST_CMD_ALL}}).
         Check: type safety, input validation, security, injection risks,
         data exposure, error handling, data integrity.
         Report findings with severity ratings (CRITICAL/HIGH/MEDIUM/LOW).")
@@ -321,7 +321,7 @@ Output phase banner:
 ### Step 1: Final checks
 
 ```bash
-{{TYPE_CHECK_CMD}}
+{{TYPECHECK_CMD}}
 {{TEST_CMD_ALL}}
 ```
 
