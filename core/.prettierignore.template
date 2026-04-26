@@ -1,0 +1,27 @@
+# claude-tdd-starter — default .prettierignore template
+#
+# Scaffolded by setup.sh into a project root if no .prettierignore exists.
+# The framework-protection block is mandatory: it keeps prettier from
+# rewriting files that must stay byte-identical for `framework-sync.sh`
+# to work. See .claude/rules/framework-boundary.md §"Tooling protection".
+
+# ─── Build artifacts / tooling ─────────────────────────────────────────
+node_modules
+dist
+build
+coverage
+.next
+out
+
+# Lockfiles — let the package manager own these
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lockb
+
+# ─── Framework protection (do not remove) ──────────────────────────────
+# These are owned by claude-tdd-starter and synced byte-identical via
+# framework-sync.sh. Reformatting them here causes spurious sync diffs
+# and can subtly drift skill / hook / agent behavior.
+.claude/
+docs/
