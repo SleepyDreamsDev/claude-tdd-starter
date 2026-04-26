@@ -433,6 +433,31 @@ open('$CLAUDE_MD', 'w').write(content)
   echo -e "${GREEN}  CLAUDE.md created from template${NC}"
 fi
 
+# ─── Step 7.5: Scaffold .prettierignore (framework protection) ──────
+
+echo -e "${YELLOW}Ensuring .prettierignore protects framework files...${NC}"
+
+PRETTIER_IGNORE="$TARGET_DIR/.prettierignore"
+PRETTIER_TEMPLATE="$CORE_DIR/.prettierignore.template"
+
+if [ ! -f "$PRETTIER_IGNORE" ]; then
+  cp "$PRETTIER_TEMPLATE" "$PRETTIER_IGNORE"
+  echo -e "${GREEN}  .prettierignore scaffolded from template${NC}"
+elif ! grep -qE '^\.claude/?$' "$PRETTIER_IGNORE" || ! grep -qE '^docs/?$' "$PRETTIER_IGNORE"; then
+  # Existing .prettierignore does not protect framework dirs — append the block.
+  {
+    echo ""
+    echo "# ─── Framework protection (added by claude-tdd-starter setup.sh) ──"
+    echo "# These dirs must stay byte-identical for framework-sync.sh to work."
+    echo "# See .claude/rules/framework-boundary.md §\"Tooling protection\"."
+    echo ".claude/"
+    echo "docs/"
+  } >> "$PRETTIER_IGNORE"
+  echo -e "${GREEN}  framework-protection block appended to existing .prettierignore${NC}"
+else
+  echo -e "${GREEN}  .prettierignore already protects framework files${NC}"
+fi
+
 # ─── Step 8: Add package.json scripts ────────────────────────────────
 
 echo -e "${YELLOW}Updating package.json...${NC}"
@@ -528,6 +553,7 @@ echo "  - .claude/progress.md             — session progress tracker"
 echo "  - specs/                          — Gherkin spec output directory"
 echo "  - .husky/                         — pre-commit, commit-msg, pre-push"
 echo "  - commitlint.config.js            — conventional commit enforcement"
+echo "  - .prettierignore                 — protects .claude/ and docs/ from auto-format"
 echo "  - CLAUDE.md                       — TDD rules, Gherkin docs, skill docs"
 echo ""
 echo "Workflow:"
